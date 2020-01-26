@@ -1,0 +1,85 @@
+{
+  "project_info": {
+    "project_number": "929094946638",
+    "firebase_url": "https://mbtssn-11eb3.firebaseio.com",
+    "project_id": "mbtssn-11eb3",
+    "storage_bucket": "mbtssn-11eb3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929094946638:android:d5b2925f91bb87ea02181f",
+        "android_client_info": {
+          "package_name": "com.coecs.mobilebasedtouristspotandshopnavigator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929094946638-turm3r41r49tjgbma88rt287tjagdna6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.coecs.mobilebasedtouristspotandshopnavigator",
+            "certificate_hash": "f73d6652401a1d05c1734460dae0b08d66c8f28f"
+          }
+        },
+        {
+          "client_id": "929094946638-gapi4r2cqcjr18iuom3tc77doo0f1emb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbXDsrilGWiQWxjMuNMRTBRPIVZqBP_24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929094946638-gapi4r2cqcjr18iuom3tc77doo0f1emb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929094946638:android:ec0ffe131f0743dd02181f",
+        "android_client_info": {
+          "package_name": "com.coecs.project012"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929094946638-57dq4k46b6ggbifbkcm6ur0m9vt7i873.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.coecs.project012",
+            "certificate_hash": "f73d6652401a1d05c1734460dae0b08d66c8f28f"
+          }
+        },
+        {
+          "client_id": "929094946638-gapi4r2cqcjr18iuom3tc77doo0f1emb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbXDsrilGWiQWxjMuNMRTBRPIVZqBP_24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929094946638-gapi4r2cqcjr18iuom3tc77doo0f1emb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
