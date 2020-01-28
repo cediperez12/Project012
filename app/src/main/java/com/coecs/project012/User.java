@@ -27,6 +27,14 @@ public class User {
         this.profileImagePath = profileImagePath;
     }
 
+    public User(String uid){
+        this.uid = uid;
+    }
+
+    public User(){
+
+    }
+
     public String getUid() {
         return uid;
     }

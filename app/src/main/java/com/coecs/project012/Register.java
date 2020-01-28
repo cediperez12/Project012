@@ -4,14 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
@@ -22,6 +26,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageActivity;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -37,8 +44,11 @@ public class Register extends AppCompatActivity{
     private TextInputLayout til_first_name,til_last_name,til_email,til_password,til_confirm_pass;
     private EditText etxt_fname,etxt_lname,etxt_email,etxt_password,etxt_confirm_pass;
     private CircleImageView civ_profile_image;
+    private Toolbar toolbar;
 
     private Uri profileImage;
+
+    private RegisterFunction registerFunction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +68,12 @@ public class Register extends AppCompatActivity{
         til_password = findViewById(R.id.til_password_register);
         til_confirm_pass = findViewById(R.id.til_confirm_password_register);
         civ_profile_image = findViewById(R.id.civ_profile_image_register);
+        toolbar = findViewById(R.id.toolbar_register);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setTitle("Register");
 
         etxt_fname = til_first_name.getEditText();
         etxt_lname = til_last_name.getEditText();
@@ -198,29 +214,44 @@ public class Register extends AppCompatActivity{
                 throw new Exception(til_password.getError().toString());
             if(til_confirm_pass.isErrorEnabled())
                 throw new Exception(til_confirm_pass.getError().toString());
+            if(profileImage == null){
+                throw new Exception("Please put your profile photo.");
+            }
 
-            final String email = til_email.getEditText().getText().toString();
-            final String password = til_password.getEditText().getText().toString();
+            String email = til_email.getEditText().getText().toString();
+            String password = til_password.getEditText().getText().toString();
+            String firstName = til_first_name.getEditText().getText().toString();
+            String lastName = til_last_name.getEditText().getText().toString();
 
-            authentication.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if(task.isSuccessful()){
-                        String uid = task.getResult().getUser().getUid();
-                    }else{
+            User newUser = new User(email,password,firstName,lastName,null,null);
 
-                    }
-                }
-            });
+            registerFunction = new RegisterFunction(this,newUser);
+            registerFunction.execute();
 
         }catch(Exception ex){
-            new AlertDialog.Builder(this)
-                    .setTitle("Error")
-                    .setMessage(ex.getMessage())
-                    .setPositiveButton("OKAY",null)
-                    .setCancelable(false)
-                    .create().show();
+            new Alert(this).showErrorMessage("Error",ex.getMessage());
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void clickChooseImage(View view){
@@ -255,24 +286,105 @@ public class Register extends AppCompatActivity{
 
     private class RegisterFunction extends AsyncTask<String,String,Void> {
 
-        RegisterFunction(){
+        private ProgressDialog pg;
+        private User newUser;
+        private Context con;
+        private Alert alert;
 
+        RegisterFunction(Context con, User newUser){
+            this.newUser = newUser;
+            this.con = con;
+
+            pg = new ProgressDialog(con);
+            pg.setCancelable(false);
+            pg.setMessage("Registering your new account...");
+            pg.setIndeterminate(true);
+            pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+            alert = new Alert(con);
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            pg.show();
         }
 
         @Override
         protected Void doInBackground(String... strings) {
+            authentication.createUserWithEmailAndPassword(newUser.getEmail(),newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if(task.isSuccessful()){
+                        newUser.setUid(task.getResult().getUser().getUid());
+
+                        String path = "images/" + newUser.getUid() + "/profile.jpg";
+                        newUser.setProfileImagePath(path);
+
+                        StorageReference reference = FirebaseStorage.getInstance().getReference().child(path);
+                        reference.putFile(profileImage).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                database.getReference("users").child(newUser.getUid()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(task.isSuccessful()){
+                                            pg.dismiss();
+                                            alert.showErrorMessage("Register","Thank you for registering you may now use your account.");
+                                            authentication.signOut();
+
+                                            Intent intent = new Intent(getApplicationContext(),Login.class);
+                                            startActivity(intent);
+                                            Register.this.finish();
+                                        }else{
+                                            alert.showErrorMessage("Error",task.getException().getMessage());
+                                        }
+                                    }
+                                });
+                            }
+                        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                pg.setMessage("Uploading your images...");
+                            }
+                        });
+                    }else{
+                        pg.dismiss();
+                        alert.showErrorMessage("Error",task.getException().getMessage());
+                    }
+                }
+            });
+
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+
+            if(pg.isShowing()){
+                pg.dismiss();
+            }
         }
+    }
+
+    public class Alert{
+
+        private Context con;
+
+        Alert(Context context){
+            con = context;
+        }
+
+        private void showErrorMessage(String title, String message){
+            new AlertDialog.Builder(con)
+                    .setCancelable(false)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setPositiveButton("Okay",null)
+                    .create().show();
+        }
+
     }
 }
 
