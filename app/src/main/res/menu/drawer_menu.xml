@@ -20,7 +20,7 @@
             android:title="Messages"/>
     </group>
 
-    <item android:title="Others">
+    <item android:title="Worker">
         <menu>
             <item
                 android:id="@+id/nav_worker_setup"
