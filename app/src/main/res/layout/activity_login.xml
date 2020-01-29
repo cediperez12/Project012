@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/gradient_bg"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -10,12 +11,16 @@
         android:layout_height="match_parent"
         tools:context=".Login">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/title_imgv"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
-            android:layout_marginTop="128dp"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
             android:scaleType="centerCrop"
+            android:layout_marginTop="120dp"
+            android:onClick="clickChooseImage"
+            android:src="@drawable/sample_photo"
+            app:civ_border_color="@android:color/black"
+            app:civ_border_width="1dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -49,6 +54,7 @@
             android:layout_marginEnd="16dp"
             app:passwordToggleEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
+            app:counterEnabled="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_email_login">
 
