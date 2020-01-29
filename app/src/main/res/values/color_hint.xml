@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="HintColor">
+        <item name="colorControlNormal">#929B9E</item>
+        <item name="colorControlActivated">#00b8d4</item>
+        <item name="colorControlHighlight">@color/colorAccent</item>
+    </style>
+
+</resources>
