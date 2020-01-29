@@ -50,6 +50,8 @@ public class Register extends AppCompatActivity{
 
     private RegisterFunction registerFunction;
 
+    private String cedie;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
