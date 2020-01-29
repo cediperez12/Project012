@@ -44,11 +44,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="40dp"
                 android:layout_marginEnd="16dp"
-                android:paddingLeft="10dp"
                 app:errorTextAppearance="#ef5350"
-                android:paddingRight="7dp"
-
-                android:background="@drawable/textfield_bg_corners">
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
 
@@ -66,11 +63,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="16dp"
-                android:background="@drawable/textfield_bg_corners"
-                app:counterEnabled="true"
-                android:paddingLeft="10dp"
-                android:paddingRight="7dp"
-
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
