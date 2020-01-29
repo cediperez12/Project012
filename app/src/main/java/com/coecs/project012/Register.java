@@ -370,24 +370,6 @@ public class Register extends AppCompatActivity{
         }
     }
 
-    public class Alert{
-
-        private Context con;
-
-        Alert(Context context){
-            con = context;
-        }
-
-        private void showErrorMessage(String title, String message){
-            new AlertDialog.Builder(con)
-                    .setCancelable(false)
-                    .setTitle(title)
-                    .setMessage(message)
-                    .setPositiveButton("Okay",null)
-                    .create().show();
-        }
-
-    }
 }
 
 
