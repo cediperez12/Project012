@@ -37,9 +37,10 @@
             android:id="@+id/til_first_name_register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
+            app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/civ_profile_image_register">
@@ -48,8 +49,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="First Name"
-                android:textSize="@dimen/text_small"
-                android:inputType="textPersonName"/>
+                android:inputType="textPersonName"
+                android:maxLength="18"
+                android:textSize="@dimen/text_small" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -57,9 +59,10 @@
             android:id="@+id/til_last_name_register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
+            app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_first_name_register">
@@ -68,8 +71,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Last Name"
-                android:textSize="@dimen/text_small"
-                android:inputType="textPersonName"/>
+                android:inputType="textPersonName"
+                android:maxLength="18"
+                android:textSize="@dimen/text_small" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

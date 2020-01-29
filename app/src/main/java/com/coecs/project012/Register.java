@@ -99,6 +99,7 @@ public class Register extends AppCompatActivity{
                 try{
                     if(s.toString().isEmpty())
                         throw new Exception("Please enter your first name.");
+
                     til_first_name.setErrorEnabled(false);
                 }catch (Exception ex){
                     til_first_name.setError(ex.getMessage());
@@ -143,7 +144,7 @@ public class Register extends AppCompatActivity{
             @Override
             public void afterTextChanged(Editable s) {
                 try{
-                    if(isValid(s.toString()))
+                    if(!isValid(s.toString()))
                         throw new Exception("Your email address is invalid.");
                     if(s.toString().isEmpty())
                         throw new Exception("Please enter your email.");
@@ -208,6 +209,24 @@ public class Register extends AppCompatActivity{
 
     public void clickRegister(View view){
         try{
+
+            if(etxt_fname.getText().toString().isEmpty())
+                throw new Exception("Please enter your first name.");
+            if(etxt_lname.toString().isEmpty())
+                throw new Exception("Please enter your last name.");
+            if(!isValid(etxt_email.toString()))
+                throw new Exception("Your email address is invalid.");
+            if(etxt_email.toString().isEmpty())
+                throw new Exception("Please enter your email.");
+            if(etxt_password.toString().isEmpty())
+                throw new Exception("Please enter your password");
+            if(etxt_password.toString().length() < 8)
+                throw new Exception("Your password must be 8 and above");
+            if(etxt_confirm_pass.toString().isEmpty())
+                throw new Exception("Please confirm your password");
+            if(!etxt_confirm_pass.toString().equals(etxt_password.getText().toString()))
+                throw new Exception("Your password does not matched");
+
             if(til_first_name.isErrorEnabled())
                 throw new Exception(til_first_name.getError().toString());
             if(til_last_name.isErrorEnabled())

@@ -22,7 +22,7 @@ public class Splash extends AppCompatActivity {
         try{
             Thread.sleep(5000);
 
-            if(auth.getCurrentUser() != null){
+            if(auth.getCurrentUser() == null){
                 startActivity(new Intent(getApplicationContext(), Login.class));
             }else{
                 startActivity(new Intent(getApplicationContext(),MainActivity.class));
