@@ -17,11 +17,14 @@
             android:id="@+id/title_imgv"
             android:layout_width="147dp"
             android:layout_height="147dp"
-            android:layout_marginTop="128dp"
+            android:layout_marginTop="130dp"
+            android:onClick="clickChooseImage"
+            android:scaleType="fitXY"
             android:src="@drawable/user"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/user" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -41,6 +44,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="40dp"
                 android:layout_marginEnd="16dp"
+                app:errorTextAppearance="#ef5350"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -89,13 +93,11 @@
             android:id="@+id/textView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:text="I don't have an account"
             android:textAlignment="center"
-            android:textColor="@android:color/white"
-            android:onClick="registerAccount"
+            android:textColor="#FFF"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
