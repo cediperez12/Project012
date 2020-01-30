@@ -103,7 +103,7 @@ public class Register extends AppCompatActivity{
                     til_first_name.setErrorEnabled(false);
                 }catch (Exception ex){
                     til_first_name.setError(ex.getMessage());
-                    til_first_name.setErrorEnabled(true);
+                    til_first_name.setErrorEnabled(false);
                 }
             }
         });
