@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:id="@+id/drawer_layout"
     android:fitsSystemWindows="true"
-    tools:openDrawer="start"
+    tools:openDrawer="end"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -55,7 +55,7 @@
                 android:id="@+id/imageButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginEnd="8dp"
                 android:background="@android:color/transparent"
                 app:layout_constraintEnd_toEndOf="parent"

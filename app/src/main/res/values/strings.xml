@@ -3,4 +3,6 @@
     
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
+
+    <string name="mapbox_key">pk.eyJ1IjoiY2VkaWVwZXJlejEyIiwiYSI6ImNrM2lnN202eDA3eHAzZHM3a2kyOTRmbXAifQ.aycguHgjg4saApLr140G8w</string>
 </resources>
