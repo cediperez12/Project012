@@ -64,7 +64,7 @@ public class Register extends AppCompatActivity{
         storage = FirebaseStorage.getInstance();
         database = FirebaseDatabase.getInstance();
 
-        til_first_name = findViewById(R.id.til_email_register);
+        til_first_name = findViewById(R.id.til_first_name_register);
         til_last_name = findViewById(R.id.til_last_name_register);
         til_email = findViewById(R.id.til_email_register);
         til_password = findViewById(R.id.til_password_register);
