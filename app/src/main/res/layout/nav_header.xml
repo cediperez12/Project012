@@ -11,13 +11,16 @@
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="64dp"
         android:layout_height="64dp"
-        app:civ_border_width="1dp"
+        app:civ_border_width="2.5dp"
+        app:civ_border_color="#bdbdbd"
+        app:civ_border_overlay="true"
         android:src="@drawable/sample_photo"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Lee Ji Eun"
+        android:textColor="@color/TextColorHead"
         android:textSize="@dimen/text_med"
         android:layout_marginTop="8dp"
         android:textStyle="bold"/>
