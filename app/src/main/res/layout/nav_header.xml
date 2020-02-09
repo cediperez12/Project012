@@ -9,12 +9,14 @@
     android:orientation="vertical">
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/navHeader_civ_profile"
         android:layout_width="64dp"
         android:layout_height="64dp"
         app:civ_border_width="1dp"
         android:src="@drawable/sample_photo"/>
 
     <TextView
+        android:id="@+id/navHeader_txtv_profile_main_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Lee Ji Eun"
