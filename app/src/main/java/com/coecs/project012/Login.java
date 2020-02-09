@@ -69,7 +69,7 @@ public class Login extends AppCompatActivity {
                         throw new Exception("Please enter your email.");
                     }
 
-                    til_password.setErrorEnabled(false);
+                    til_email.setErrorEnabled(false);
                 }catch (Exception ex){
                     til_email.setErrorEnabled(true);
                     til_email.setError(ex.getMessage());
@@ -145,6 +145,7 @@ public class Login extends AppCompatActivity {
             pg = new ProgressDialog(context);
             pg.setMessage("Loading...");
             pg.setIndeterminate(true);
+            pg.setCancelable(false);
             pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         }
 

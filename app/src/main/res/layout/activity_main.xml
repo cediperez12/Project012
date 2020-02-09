@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/drawer_layout"
+    tools:openDrawer="start"
     android:fitsSystemWindows="true"
-    tools:openDrawer="end"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -50,16 +50,16 @@
                     android:textSize="@dimen/text_small"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <ImageButton
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="8dp"
-                android:background="@android:color/transparent"
+                android:padding="6dp"
+                android:src="@drawable/ic_search"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_search" />
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
                 android:id="@+id/txtv_services_av"
@@ -78,6 +78,7 @@
                 android:id="@+id/services_available"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtv_services_av">
@@ -85,10 +86,35 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal" />
+                    android:orientation="horizontal" >
+
+                    <RelativeLayout
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        >
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/area_service_worker_profile"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:src="@drawable/ic_refresh_black_24dp"
+                            app:civ_border_width="1dp"/>
+
+                        <TextView
+                            android:layout_width="64dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/area_service_worker_profile"
+                            android:text="Refresh"
+                            android:textAlignment="center"
+                            android:textColor="@android:color/black"
+                            android:layout_marginTop="4dp"/>
+
+                    </RelativeLayout>
+                </LinearLayout>
             </HorizontalScrollView>
 
             <com.mapbox.mapboxsdk.maps.MapView
+                android:id="@+id/mapview"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="8dp"
