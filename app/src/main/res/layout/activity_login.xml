@@ -15,16 +15,14 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/title_imgv"
-            android:layout_width="147dp"
-            android:layout_height="147dp"
-            android:layout_marginTop="130dp"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_marginTop="96dp"
             android:onClick="clickChooseImage"
-            android:scaleType="fitXY"
             android:src="@drawable/user"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/user" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -44,7 +42,6 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="40dp"
                 android:layout_marginEnd="16dp"
-                app:errorTextAppearance="#ef5350"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -84,6 +81,7 @@
                 android:backgroundTint="@color/colorPrimary"
                 android:padding="16dp"
                 android:text="Login"
+                android:onClick="login"
                 android:layout_marginBottom="15dp"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white" />
@@ -95,9 +93,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
             android:text="I don't have an account"
+            android:textStyle="bold"
             android:textAlignment="center"
-            android:textColor="#FFF"
+            android:textSize="@dimen/text_med"
+            android:textColor="@android:color/white"
+            android:onClick="registerAccount"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"

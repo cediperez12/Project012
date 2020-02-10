@@ -64,7 +64,7 @@ public class Register extends AppCompatActivity{
         storage = FirebaseStorage.getInstance();
         database = FirebaseDatabase.getInstance();
 
-        til_first_name = findViewById(R.id.til_email_register);
+        til_first_name = findViewById(R.id.til_first_name_register);
         til_last_name = findViewById(R.id.til_last_name_register);
         til_email = findViewById(R.id.til_email_register);
         til_password = findViewById(R.id.til_password_register);
@@ -212,19 +212,19 @@ public class Register extends AppCompatActivity{
 
             if(etxt_fname.getText().toString().isEmpty())
                 throw new Exception("Please enter your first name.");
-            if(etxt_lname.toString().isEmpty())
+            if(etxt_lname.getText().toString().isEmpty())
                 throw new Exception("Please enter your last name.");
-            if(!isValid(etxt_email.toString()))
-                throw new Exception("Your email address is invalid.");
-            if(etxt_email.toString().isEmpty())
+            if(etxt_email.getText().toString().isEmpty())
                 throw new Exception("Please enter your email.");
-            if(etxt_password.toString().isEmpty())
+            if(!isValid(etxt_email.getText().toString()))
+                throw new Exception("Your email address is invalid.");
+            if(etxt_password.getText().toString().isEmpty())
                 throw new Exception("Please enter your password");
-            if(etxt_password.toString().length() < 8)
+            if(etxt_password.getText().toString().length() < 8)
                 throw new Exception("Your password must be 8 and above");
-            if(etxt_confirm_pass.toString().isEmpty())
+            if(etxt_confirm_pass.getText().toString().isEmpty())
                 throw new Exception("Please confirm your password");
-            if(!etxt_confirm_pass.toString().equals(etxt_password.getText().toString()))
+            if(!etxt_confirm_pass.getText().toString().equals(etxt_password.getText().toString()))
                 throw new Exception("Your password does not matched");
 
             if(til_first_name.isErrorEnabled())
