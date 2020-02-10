@@ -10,13 +10,16 @@
         android:paddingTop="30dp"
         android:paddingBottom="35dp"
         android:background="@drawable/corner_r_top">
+
         <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/navHeader_civ_profile"
             android:layout_width="80dp"
             android:layout_height="80dp"
             app:civ_border_color="#b4b4b4"
             android:layout_gravity="center"
             app:civ_border_width="1dp"
             android:src="@drawable/sample_photo"/>
+
     </FrameLayout>
 
     <LinearLayout
@@ -27,6 +30,7 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/navHeader_txtv_profile_main_text"
             android:layout_width="wrap_content"
             android:padding="5dp"
             android:layout_height="wrap_content"
@@ -38,6 +42,7 @@
             android:textStyle="bold"/>
 
         <TextView
+            android:id="@+id/navHeader_txtv_profile_sub_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="LeeJiEun@yahoo.com"
