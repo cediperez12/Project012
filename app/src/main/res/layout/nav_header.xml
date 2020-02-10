@@ -1,27 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="176dp"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/colorPrimary"
-    android:gravity="bottom"
-    android:padding="16dp"
     android:orientation="vertical">
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/navHeader_civ_profile"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        app:civ_border_width="1dp"
-        android:src="@drawable/sample_photo"/>
-
-    <TextView
-        android:id="@+id/navHeader_txtv_profile_main_text"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Lee Ji Eun"
-        android:textSize="@dimen/text_med"
-        android:layout_marginTop="8dp"
-        android:textStyle="bold"/>
+        android:paddingTop="30dp"
+        android:paddingBottom="35dp"
+        android:background="@drawable/corner_r_top">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            app:civ_border_color="#b4b4b4"
+            android:layout_gravity="center"
+            app:civ_border_width="1dp"
+            android:src="@drawable/sample_photo"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-25dp"
+        android:background="@drawable/white_corners"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:padding="5dp"
+            android:layout_height="wrap_content"
+            android:text="Lee Ji Eun"
+            android:textSize="@dimen/text_large"
+            android:textColor="@color/colorPrimary"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LeeJiEun@yahoo.com"
+            android:textSize="@dimen/text_small"
+            android:layout_gravity="center"
+            android:textColor="@color/colorDimGray"
+            android:textStyle="bold"/>
+    </LinearLayout>
 
 </LinearLayout>

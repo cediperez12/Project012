@@ -23,7 +23,12 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/tf_shapes_corner"
+        android:layout_height="40dp"
+        android:gravity="left"
+        android:paddingTop="7dp"
         android:layout_marginTop="8dp">
 
         <TextView
@@ -31,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_med"
-            android:textColor="@android:color/black"
+            android:textColor="@color/colorWhite"
             android:textStyle="bold"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
@@ -41,7 +46,7 @@
             android:id="@+id/worker_setup_add_services"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_add"
+            android:src="@drawable/ic_add_black_24dp"
             android:layout_toRightOf="@+id/txtv_other_service"
             android:clickable="true"
             />
