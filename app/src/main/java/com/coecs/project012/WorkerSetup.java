@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Button;
 
 public class WorkerSetup extends AppCompatActivity {
@@ -30,12 +31,39 @@ public class WorkerSetup extends AppCompatActivity {
         btnNext = findViewById(R.id.worker_setup_btn_next);
         btnPrev = findViewById(R.id.worker_setup_btn_prev);
 
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         viewPager.setAdapter(new FragmentAdapter(getSupportFragmentManager()));
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+
+            case android.R.id.home:
+                onBackPressed();
+                break;
+
+        }
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
     private class FragmentAdapter extends FragmentPagerAdapter {
+
+        public WorkerSetupServices workerSetupServices;
+
         public FragmentAdapter(@NonNull FragmentManager fm) {
             super(fm);
+
+            workerSetupServices = new WorkerSetupServices();
         }
 
         @NonNull
