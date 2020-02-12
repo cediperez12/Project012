@@ -73,7 +73,7 @@ public class WorkerSetup extends AppCompatActivity {
             switch (position){
 
                 case 0:
-                    return new WorkerSetupServices();
+                    return workerSetupServices;
 
             }
 
@@ -82,7 +82,7 @@ public class WorkerSetup extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 3;
+            return 1;
         }
     }
 }

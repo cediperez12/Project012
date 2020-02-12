@@ -9,6 +9,7 @@
         android:id="@+id/etxt_entry_other_service"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:ems="10"
         android:inputType="text"
         android:textSize="@dimen/text_small"
