@@ -21,6 +21,7 @@ import android.widget.EditText;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.resources.TextAppearance;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -118,13 +119,12 @@ public class WorkerSetupServices extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 try{
                                     EditText etxt = serviceEntryView.findViewById(R.id.etxt_entry_other_service);
-                                    String otherService = etxt.getText().toString().trim();
+                                    String otherService = etxt.getText().toString();
 
-                                    if(otherService.isEmpty()){
-                                        throw new Exception ("Other service is empty.");
-                                    }
+                                    if(otherService.isEmpty())
+                                        throw new Exception("We're not accepting emtpy texts.");
 
-                                    getChip(chipGroupOtherServices,otherService);
+                                    chipGroupOtherServices.addView(getChip(chipGroupOtherServices,otherService));
                                 }catch (Exception ex){
                                     ex.printStackTrace();
                                 }
@@ -141,7 +141,7 @@ public class WorkerSetupServices extends Fragment {
     private Chip getChip(final ChipGroup entryChipGroup, String text) {
         final Chip chip = new Chip(getContext());
         int paddingDp = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 10,
+                TypedValue.COMPLEX_UNIT_DIP, 8,
                 getResources().getDisplayMetrics()
         );
         chip.setPadding(paddingDp, paddingDp, paddingDp, paddingDp);
