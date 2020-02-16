@@ -128,21 +128,110 @@ public class User {
         this.userLocation = userLocation;
     }
 
-    private class Location{
+    public class Location{
         private long lat;
         private long lng;
+
+        public Location() {
+        }
+
+        public Location(long lat, long lng) {
+            this.lat = lat;
+            this.lng = lng;
+        }
+
+        public long getLat() {
+            return lat;
+        }
+
+        public void setLat(long lat) {
+            this.lat = lat;
+        }
+
+        public long getLng() {
+            return lng;
+        }
+
+        public void setLng(long lng) {
+            this.lng = lng;
+        }
     }
 
-    private class EducationalAttainment{
+    public class EducationalAttainment{
         private String school;
         private String course;
-        private String attainment;
         private String year;
+
+        public EducationalAttainment() {
+        }
+
+        public EducationalAttainment(String school, String course, String year) {
+            this.school = school;
+            this.course = course;
+            this.year = year;
+        }
+
+        public String getSchool() {
+            return school;
+        }
+
+        public void setSchool(String school) {
+            this.school = school;
+        }
+
+        public String getCourse() {
+            return course;
+        }
+
+        public void setCourse(String course) {
+            this.course = course;
+        }
+
+        public String getYear() {
+            return year;
+        }
+
+        public void setYear(String year) {
+            this.year = year;
+        }
     }
 
-    private class Experiences{
+    public class Experiences{
         private String years;
         private String company;
         private String jobTitle;
+
+        public Experiences() {
+        }
+
+        public Experiences(String years, String company, String jobTitle) {
+            this.years = years;
+            this.company = company;
+            this.jobTitle = jobTitle;
+        }
+
+        public String getYears() {
+            return years;
+        }
+
+        public void setYears(String years) {
+            this.years = years;
+        }
+
+        public String getCompany() {
+            return company;
+        }
+
+        public void setCompany(String company) {
+            this.company = company;
+        }
+
+        public String getJobTitle() {
+            return jobTitle;
+        }
+
+        public void setJobTitle(String jobTitle) {
+            this.jobTitle = jobTitle;
+        }
     }
 }
