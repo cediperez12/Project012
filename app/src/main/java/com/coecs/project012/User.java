@@ -157,7 +157,7 @@ public class User {
         }
     }
 
-    public class EducationalAttainment{
+    public static class EducationalAttainment{
         private String school;
         private String course;
         private String year;
@@ -193,6 +193,10 @@ public class User {
 
         public void setYear(String year) {
             this.year = year;
+        }
+
+        public String toString(){
+            return school + " - " + course + " - " + year;
         }
     }
 
@@ -232,6 +236,10 @@ public class User {
 
         public void setJobTitle(String jobTitle) {
             this.jobTitle = jobTitle;
+        }
+
+        public String toString(){
+            return company + " - " + jobTitle + " - " + years;
         }
     }
 }
