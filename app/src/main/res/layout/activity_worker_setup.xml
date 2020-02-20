@@ -97,6 +97,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/txtv_other_service"
+                    android:onClick="addNewService"
                     android:clickable="true"
                     android:src="@drawable/ic_add_black_24dp" />
             </RelativeLayout>
@@ -186,6 +187,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/txtv_experiences"
                     android:clickable="true"
+                    android:onClick="addNewExperience"
                     android:src="@drawable/ic_add_black_24dp" />
             </RelativeLayout>
 
@@ -228,6 +230,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/txtv_skills"
                     android:clickable="true"
+                    android:onClick="addNewSkill"
                     android:src="@drawable/ic_add_black_24dp" />
             </RelativeLayout>
 
@@ -245,7 +248,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="24dp"
                 android:text="Read terms and agreement."
                 android:textAlignment="center"></TextView>
 
@@ -272,6 +275,7 @@
         android:text="SAVE"
         android:textAllCaps="false"
         android:textStyle="bold"
+        android:onClick="saveWorkerSetup"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

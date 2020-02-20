@@ -333,6 +333,13 @@ public class Register extends AppCompatActivity{
 
         @Override
         protected Void doInBackground(String... strings) {
+
+            try{
+                Thread.sleep(6000);
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+
             authentication.createUserWithEmailAndPassword(newUser.getEmail(),newUser.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -382,10 +389,6 @@ public class Register extends AppCompatActivity{
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-
-            if(pg.isShowing()){
-                pg.dismiss();
-            }
         }
     }
 
