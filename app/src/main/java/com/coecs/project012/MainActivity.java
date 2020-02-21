@@ -21,6 +21,7 @@ import android.os.Message;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,7 +35,16 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.location.LocationComponent;
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
+import com.mapbox.mapboxsdk.location.modes.CameraMode;
+import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -42,8 +52,10 @@ import com.mapbox.mapboxsdk.maps.Style;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements
+        OnMapReadyCallback, PermissionsListener {
 
     private DrawerLayout drawer;
     private NavigationView navigationView;
@@ -59,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase database;
 
     private MapView mapView;
+    private MapboxMap mapboxMap;
+    private PermissionsManager permissionsManager;
+
+    private Alert alert;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         mapView = findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                mapboxMap.setStyle(Style.MAPBOX_STREETS);
-            }
-        });
+        mapView.getMapAsync(this);
 
         drawer = findViewById(R.id.drawer_layout);
 
@@ -112,6 +123,87 @@ public class MainActivity extends AppCompatActivity {
         init();
     }
 
+    @SuppressWarnings( {"MissingPermission"})
+    private void enableLocationComponent(@NonNull Style loadedMapStyle) {
+// Check if permissions are enabled and if not request
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+
+// Get an instance of the component
+            LocationComponent locationComponent = mapboxMap.getLocationComponent();
+
+// Activate with options
+            locationComponent.activateLocationComponent(
+                    LocationComponentActivationOptions.builder(this, loadedMapStyle).build());
+
+// Enable to make component visible
+            locationComponent.setLocationComponentEnabled(true);
+
+// Set the component's camera mode
+            locationComponent.setCameraMode(CameraMode.TRACKING);
+
+// Set the component's render mode
+            locationComponent.setRenderMode(RenderMode.COMPASS);
+        } else {
+            permissionsManager = new PermissionsManager(this);
+            permissionsManager.requestLocationPermissions(this);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onExplanationNeeded(List<String> permissionsToExplain) {
+        Toast.makeText(this, "Please we need it.", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onPermissionResult(boolean granted) {
+        if (granted) {
+            mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                @Override
+                public void onStyleLoaded(@NonNull Style style) {
+                    enableLocationComponent(style);
+                }
+            });
+        } else {
+            Toast.makeText(this, "Please we need it.", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
+
+    @Override
+    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+        this.mapboxMap = mapboxMap;
+        mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
+                try{
+                    enableLocationComponent(style);
+
+                    LatLng location = new LatLng(MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
+                            MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+
+                    MainActivity.this.mapboxMap.setMinZoomPreference(15);
+                    MainActivity.this.mapboxMap.setMaxZoomPreference(20);
+
+                    CameraPosition position = new CameraPosition.Builder()
+                            .target(location) // Sets the new camera position
+                            .zoom(15) // Sets the zoom
+                            .bearing(100) // Rotate the camera
+                            .build(); // Creates a CameraPosition from the builder
+
+                    MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
+                }catch(Exception ex){
+                    alert.showErrorMessage("Notification",ex.getMessage());
+                }
+
+            }
+        });
+    }
+
     private void init(){
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -130,7 +222,11 @@ public class MainActivity extends AppCompatActivity {
 
         MainProfileSetup setup = new MainProfileSetup(this);
         setup.execute();
+
+        alert = new Alert(this);
     }
+
+
 
     private class MainProfileSetup extends AsyncTask<Void,Void,String>{
         private ProgressDialog pg;

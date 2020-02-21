@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -65,6 +66,7 @@ public class WorkerSetup extends AppCompatActivity {
     private ListView lvExperience, lvEducationAttainment;
     private CircleImageView civOtherServices, civEduc, civExperience, civSkills;
     private Switch swWorkMode;
+    private CheckBox cbTermsAgreement;
 
     private ArrayList<String> listSkills, listOtherServices; //Holders.
     private ArrayAdapter<String> listEducation, listExperice;
@@ -93,6 +95,7 @@ public class WorkerSetup extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setTitle("Worker Setup");
 
         tilServices = findViewById(R.id.til_services);
         cgSkills = findViewById(R.id.chip_group_skills);
@@ -102,6 +105,7 @@ public class WorkerSetup extends AppCompatActivity {
         lvEducationAttainment = findViewById(R.id.listv_educational_attainment);
 
         swWorkMode = findViewById(R.id.sw_worker_mode);
+        cbTermsAgreement = findViewById(R.id.checkBox_terms_agreement);
 
         //Setup Progress Dialog
         progressDialog = new ProgressDialog(this);
@@ -141,6 +145,8 @@ public class WorkerSetup extends AppCompatActivity {
                 LoadExperienceList();
 
                 tilServices.getEditText().setText(currentUser.getWorkerProfile().getMainService());
+                swWorkMode.setChecked(currentUser.isWorkerMode());
+                cbTermsAgreement.setChecked(currentUser.getWorkerProfile().isTermsAndAgreement());
 
                 //Dismiss Progress Dialog
                 progressDialog.dismiss();
@@ -171,8 +177,10 @@ public class WorkerSetup extends AppCompatActivity {
 
                         if (!checkGps) {
                             throw new Exception("Please turn on your GPS");
-                        } else if (!checkInternet) {
-                            throw new Exception("Please turn on your internet");
+                        }
+
+                        if(!checkInternet){
+                            throw new Exception("An internet connection is required to do this action.");
                         }
 
                         //Check Permissions
@@ -204,7 +212,17 @@ public class WorkerSetup extends AppCompatActivity {
                                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        currentUser.getWorkerProfile().setUserLocation(new User.Location(location.getLatitude(),location.getLongitude()));
+                                        try{
+                                            if(location == null){
+                                                swWorkMode.setChecked(false);
+                                                throw new Exception("We found an error while saving your location");
+                                            }else{
+                                                currentUser.getWorkerProfile().setUserLocation(new User.Location(location.getLatitude(),location.getLongitude()));
+                                            }
+                                        }catch (Exception ex){
+                                            alert.showErrorMessage("Notification",ex.getMessage());
+                                        }
+
                                     }
                                 })
                                 .create();
@@ -229,6 +247,7 @@ public class WorkerSetup extends AppCompatActivity {
                             Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
                         Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
                     }
+                    swWorkMode.setChecked(false);
                 }else{
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
                 }
@@ -693,12 +712,33 @@ public class WorkerSetup extends AppCompatActivity {
         List<User.Experiences> experiences = currentUser.getWorkerProfile().getExperiences();
 
         //Create a list adapter
-        ArrayAdapter<String> experiencesAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);
+        final ArrayAdapter<String> experiencesAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);
 
         //Fill the list using loop
         for(int i = 0; i<experiences.size(); i++){
             experiencesAdapter.add(experiences.get(i).toString());
         }
+
+        lvExperience.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                //Create dialog for delete
+                AlertDialog dialogForDelete = new AlertDialog.Builder(WorkerSetup.this)
+                        .setTitle("Notification")
+                        .setMessage("Are you sure you want to delete " + experiencesAdapter.getItem(position) + "?")
+                        .setNegativeButton("No",null)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                currentUser.getWorkerProfile().getExperiences().remove(position);
+                                LoadExperienceList();
+                            }
+                        })
+                        .create();
+                //Show Delete Dialog
+                dialogForDelete.show();
+            }
+        });
 
         //Set adapter
         lvExperience.setAdapter(experiencesAdapter);
@@ -706,23 +746,34 @@ public class WorkerSetup extends AppCompatActivity {
 
     public void saveWorkerSetup(View view){
         try{
-            //Create dialog
-            AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setTitle("Save")
-                    .setMessage("Are you sure you want to save this worker setup?")
-                    .setNegativeButton("No",null)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            currentUser.getWorkerProfile().setMainService(tilServices.getEditText().getText().toString().trim());
-                            userDr.child("workerProfile").setValue(currentUser.getWorkerProfile());
-                        }
-                    })
-                    .create();
+            //Terms and agreement Check
+            if(!cbTermsAgreement.isChecked()){
+                //Throw Exception
+                throw new Exception("You must read and agree to the terms and agreement we provided.");
+            }else if(tilServices.getEditText().getText().toString().isEmpty()){
+                throw new Exception("Please fill in the Main service you want to provide your customers.");
+            }else{
+                //Create dialog
+                AlertDialog dialog = new AlertDialog.Builder(this)
+                        .setTitle("Save")
+                        .setMessage("Are you sure you want to save this worker setup?")
+                        .setNegativeButton("No",null)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                currentUser.getWorkerProfile().setMainService(tilServices.getEditText().getText().toString().trim());
+                                currentUser.setWorkerMode(swWorkMode.isChecked());
+                                currentUser.getWorkerProfile().setTermsAndAgreement(cbTermsAgreement.isChecked());
+                                userDr.child("workerProfile").setValue(currentUser.getWorkerProfile());
+                            }
+                        })
+                        .create();
 
-            //Show dialog
-            dialog.show();
+                //Show dialog
+                dialog.show();
+            }
         }catch (Exception ex){
+
             alert.showErrorMessage("Notification",ex.getMessage());
         }
     }
