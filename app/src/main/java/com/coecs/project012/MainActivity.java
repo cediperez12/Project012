@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -18,8 +19,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +41,7 @@ import com.google.firebase.storage.StorageReference;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -181,8 +185,81 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
+
+        mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull Marker marker) {
+                //Find the users profile in the lists
+                User user = null;
+
+                for(int i = 0; i<workerLists.size(); i++){
+                    if(marker.getTitle().equals(workerLists.get(i).getUid())){
+                        user = workerLists.get(i);
+                        break;
+                    }
+                }
+
+                //Fetch the view
+                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_profile_viewer,null,false);
+
+                //Get the components
+                final CircleImageView civ = view.findViewById(R.id.dialog_profile_viewer_civ);
+                TextView mainText = view.findViewById(R.id.dialog_profile_viewer_main_text);
+                TextView subText = view.findViewById(R.id.dialog_profile_viewer_sub_text);
+                TextView mainServiceText = view.findViewById(R.id.dialog_profile_viewer_main_service);
+                Button btnViewProfile = view.findViewById(R.id.dialog_profile_viewer_view_profile);
+
+                final User worker = user;
+
+                //Find the User Photo
+                final File file;
+                try {
+                    file = File.createTempFile("image","png");
+                    StorageReference reference = storage.getReference().child(user.getProfileImagePath());
+                    reference.getFile(file)
+                            .addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        Uri uri = Uri.fromFile(file);
+                                        civ.setImageURI(uri);
+                                    }else{
+                                        task.getException().printStackTrace();
+                                    }
+                                }
+                            });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                //Set data to the view
+                mainText.setText(user.getFirstName() + " " + user.getLastName());
+                subText.setText(user.getEmail());
+                mainServiceText.setText(user.getWorkerProfile().getMainService());
+                btnViewProfile.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Direct to Users Profile
+                        Intent intent = new Intent();
+                        intent.putExtra("USER_ID",worker.getUid());
+                        startActivity(intent);
+                    }
+                });
+
+                //Create dialog to show User Data
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setView(view)
+                        .create();
+
+                //Show dialog box
+                dialog.show();
+
+                return true;
+            }
+        });
+
         mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
