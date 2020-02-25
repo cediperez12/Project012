@@ -38,6 +38,7 @@ import com.google.firebase.storage.StorageReference;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -52,6 +53,7 @@ import com.mapbox.mapboxsdk.maps.Style;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements
@@ -75,6 +77,10 @@ public class MainActivity extends AppCompatActivity implements
     private PermissionsManager permissionsManager;
 
     private Alert alert;
+
+    private User currentUser;
+
+    private ArrayList<User> workerLists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,6 +230,70 @@ public class MainActivity extends AppCompatActivity implements
         setup.execute();
 
         alert = new Alert(this);
+
+        workerLists = new ArrayList<>();
+    }
+
+    public void refreshButton(View view){
+        refreshMap();
+    }
+
+    private void refreshMap(){
+        try{
+            LatLng location = new LatLng(MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
+                    MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+
+            MainActivity.this.mapboxMap.setMinZoomPreference(15);
+            MainActivity.this.mapboxMap.setMaxZoomPreference(20);
+
+            CameraPosition position;
+
+            if(location != null){
+                position = new CameraPosition.Builder()
+                        .target(location) // Sets the new camera position
+                        .zoom(15) // Sets the zoom
+                        .bearing(12) // Rotate the camera
+                        .build(); // Creates a CameraPosition from the builder
+            }else{
+                position = new CameraPosition.Builder()
+                        .zoom(15) // Sets the zoom
+                        .bearing(12) // Rotate the camera
+                        .build(); // Creates a CameraPosition from the builder
+            }
+
+            MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
+
+            database.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for(DataSnapshot ds : dataSnapshot.getChildren()){
+                        User user = ds.getValue(User.class);
+
+                        //Identify Workers
+                        if(user.isWorkerMode() && !user.getUid().equals(currentUser.getUid())){
+                            //Add to the list of worker
+                            workerLists.add(user);
+
+                            //Get the Users postion
+                            User.Location workerLocation = user.getWorkerProfile().getUserLocation();
+
+                            //Create an icon for the map.
+                            mapboxMap.addMarker(new MarkerOptions()
+                            .setTitle(user.getUid())
+                            .setPosition(new LatLng(workerLocation.getLat(),workerLocation.getLng())));
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    databaseError.toException().printStackTrace();
+                }
+            });
+        }catch(Exception ex){
+            alert.showErrorMessage("Notification",ex.getMessage());
+        }
     }
 
 
@@ -257,6 +327,7 @@ public class MainActivity extends AppCompatActivity implements
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         User user = dataSnapshot.getValue(User.class);
+                        currentUser = user;
 
                         txtvProfileMainText.setText(user.getFirstName() + " " + user.getLastName());
                         txtvProfileSubText.setText(user.getEmail());
@@ -303,8 +374,6 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            if(pg.isShowing())
-                pg.dismiss();
         }
     }
 

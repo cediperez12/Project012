@@ -17,6 +17,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,6 +35,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.chip.Chip;
@@ -52,7 +54,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class WorkerSetup extends AppCompatActivity {
+public class WorkerSetup extends AppCompatActivity implements LocationListener {
 
     private DatabaseReference userDr;
     private FirebaseAuth mAuth;
@@ -67,6 +69,7 @@ public class WorkerSetup extends AppCompatActivity {
     private CircleImageView civOtherServices, civEduc, civExperience, civSkills;
     private Switch swWorkMode;
     private CheckBox cbTermsAgreement;
+    private TextView worker_setup_save_location_notfier_textv;
 
     private ArrayList<String> listSkills, listOtherServices; //Holders.
     private ArrayAdapter<String> listEducation, listExperice;
@@ -106,6 +109,7 @@ public class WorkerSetup extends AppCompatActivity {
 
         swWorkMode = findViewById(R.id.sw_worker_mode);
         cbTermsAgreement = findViewById(R.id.checkBox_terms_agreement);
+        worker_setup_save_location_notfier_textv = findViewById(R.id.worker_setup_save_location_notfier_textv);
 
         //Setup Progress Dialog
         progressDialog = new ProgressDialog(this);
@@ -167,45 +171,17 @@ public class WorkerSetup extends AppCompatActivity {
         swWorkMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
                     //Fetch Location
                     try {//Find Restrictions
-                        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-                        checkGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                        checkInternet = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-                        if (!checkGps) {
-                            throw new Exception("Please turn on your GPS");
-                        }
-
-                        if(!checkInternet){
-                            throw new Exception("An internet connection is required to do this action.");
-                        }
-
-                        //Check Permissions
-                        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            if (ActivityCompat.shouldShowRequestPermissionRationale(WorkerSetup.this,
-                                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                                ActivityCompat.requestPermissions(WorkerSetup.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                            }else{
-                                ActivityCompat.requestPermissions(WorkerSetup.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                            }
-                            return;
-                        }
-
-                        //Fetched Location
-                        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-                        //Create dialog
-                        AlertDialog permissionToFetchLocation = new AlertDialog.Builder(WorkerSetup.this)
-                                .setTitle("Location")
-                                .setTitle("Are you sure you want to provide your location to other users?")
+                        //Create Dialog for confirmation
+                        AlertDialog confirmationDialog = new AlertDialog.Builder(WorkerSetup.this)
+                                .setTitle("Notification")
+                                .setMessage("This act will give save your location and will be seen by other user for them to contact you. Are you sure you want to save your location?")
                                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
                                         swWorkMode.setChecked(false);
                                     }
                                 })
@@ -213,25 +189,55 @@ public class WorkerSetup extends AppCompatActivity {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         try{
-                                            if(location == null){
-                                                swWorkMode.setChecked(false);
-                                                throw new Exception("We found an error while saving your location");
+                                            if(ActivityCompat.checkSelfPermission(WorkerSetup.this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                                                ActivityCompat.requestPermissions(WorkerSetup.this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},1);
                                             }else{
-                                                currentUser.getWorkerProfile().setUserLocation(new User.Location(location.getLatitude(),location.getLongitude()));
+                                                LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+
+                                                boolean network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                                                boolean gpsConnection = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+                                                if(network){
+                                                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,1,WorkerSetup.this);
+
+                                                    if(locationManager != null){
+                                                        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                                                        if(location != null){
+                                                            double lat = location.getLatitude(), lon = location.getLongitude();
+                                                            currentUser.getWorkerProfile().setUserLocation(new User.Location(lat,lon));
+                                                        }else{
+                                                            throw new Exception("Failed to fetch your location. Please try again later.");
+                                                        }
+                                                    }
+                                                }else if(gpsConnection){
+                                                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,1,WorkerSetup.this);
+
+                                                    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                                                    if(location != null){
+                                                        double lat = location.getLatitude(), lon = location.getLongitude();
+                                                        currentUser.getWorkerProfile().setUserLocation(new User.Location(lat,lon));
+                                                    }else{
+                                                        throw new Exception("Failed to fetch your location. Please try again later.");
+                                                    }
+                                                }else{
+                                                    throw new Exception("Please turn on your GPS/Location and Internet Connection");
+                                                }
                                             }
                                         }catch (Exception ex){
+                                            swWorkMode.setChecked(false);
                                             alert.showErrorMessage("Notification",ex.getMessage());
                                         }
-
                                     }
                                 })
                                 .create();
 
                         //Show dialog
-                        permissionToFetchLocation.show();
+                        confirmationDialog.show();
                     }catch (Exception ex){
-                        alert.showErrorMessage("Notification",ex.getMessage());
                         swWorkMode.setChecked(false);
+                        alert.showErrorMessage("Notification",ex.getMessage());
                     }
                 }
             }
@@ -748,7 +754,6 @@ public class WorkerSetup extends AppCompatActivity {
         try{
             //Terms and agreement Check
             if(!cbTermsAgreement.isChecked()){
-                //Throw Exception
                 throw new Exception("You must read and agree to the terms and agreement we provided.");
             }else if(tilServices.getEditText().getText().toString().isEmpty()){
                 throw new Exception("Please fill in the Main service you want to provide your customers.");
@@ -764,7 +769,10 @@ public class WorkerSetup extends AppCompatActivity {
                                 currentUser.getWorkerProfile().setMainService(tilServices.getEditText().getText().toString().trim());
                                 currentUser.setWorkerMode(swWorkMode.isChecked());
                                 currentUser.getWorkerProfile().setTermsAndAgreement(cbTermsAgreement.isChecked());
-                                userDr.child("workerProfile").setValue(currentUser.getWorkerProfile());
+                                userDr.setValue(currentUser);
+
+                                worker_setup_save_location_notfier_textv.setText("New Location Saved!");
+                                worker_setup_save_location_notfier_textv.setVisibility(View.VISIBLE);
                             }
                         })
                         .create();
@@ -773,7 +781,6 @@ public class WorkerSetup extends AppCompatActivity {
                 dialog.show();
             }
         }catch (Exception ex){
-
             alert.showErrorMessage("Notification",ex.getMessage());
         }
     }
@@ -808,4 +815,23 @@ public class WorkerSetup extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }

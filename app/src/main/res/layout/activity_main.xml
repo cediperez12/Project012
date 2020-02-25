@@ -98,6 +98,7 @@
                             android:layout_width="64dp"
                             android:layout_height="64dp"
                             android:src="@drawable/ic_refresh_black_24dp"
+                            android:onClick="refreshButton"
                             app:civ_border_width="1dp"/>
 
                         <TextView

@@ -33,19 +33,31 @@
             android:paddingBottom="16dp"
             android:orientation="vertical">
 
-            <Switch
-                android:id="@+id/sw_worker_mode"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:switchPadding="8dp"
-                android:text="@string/worker_mode"
-                android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/worker_setup_toolbar" />
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:id="@+id/worker_mode_checker_layout">
+
+                <Switch
+                    android:id="@+id/sw_worker_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:switchPadding="8dp"
+                    android:text="@string/worker_mode"
+                    android:checked="true"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/worker_setup_save_location_notfier_textv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text=""/>
+
+            </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_services"
@@ -58,7 +70,7 @@
                 android:layout_marginEnd="24dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/sw_worker_mode">
+                app:layout_constraintTop_toBottomOf="@+id/worker_mode_checker_layout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -151,7 +163,7 @@
             <ListView
                 android:id="@+id/listv_educational_attainment"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"></ListView>
@@ -194,7 +206,7 @@
             <ListView
                 android:id="@+id/listv_experiences"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"></ListView>
@@ -271,7 +283,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
-        style="@style/Widget.AppCompat.Button"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:text="SAVE"
         android:textAllCaps="false"
         android:textStyle="bold"
