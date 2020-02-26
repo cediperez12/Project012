@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements
                     @Override
                     public void onClick(View v) {
                         //Direct to Users Profile
-                        Intent intent = new Intent();
+                        Intent intent = new Intent(MainActivity.this,ProfielActivity.class);
                         intent.putExtra("USER_ID",worker.getUid());
                         startActivity(intent);
                     }

@@ -163,7 +163,7 @@
             <ListView
                 android:id="@+id/listv_educational_attainment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="256dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"></ListView>
@@ -206,7 +206,7 @@
             <ListView
                 android:id="@+id/listv_experiences"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="256dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"></ListView>
