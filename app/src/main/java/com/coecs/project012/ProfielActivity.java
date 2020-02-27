@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.google.android.gms.common.util.CollectionUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
@@ -35,7 +37,13 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ProfielActivity extends AppCompatActivity {
     //Common Components
@@ -58,9 +66,14 @@ public class ProfielActivity extends AppCompatActivity {
     private Alert alert;
 
     //Database
-    private DatabaseReference userDatabaseReference;
+    private DatabaseReference userDatabaseReference,currentUserDataReference,conversationDatabase;
     private FirebaseUser currentUser;
     private FirebaseStorage storage;
+
+    //Users
+    private String userId;
+    private User userProfile;
+    private User currentUserProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +120,8 @@ public class ProfielActivity extends AppCompatActivity {
         alert = new Alert(this);
 
         //Fetch the users UID
-        String userId = getIntent().getExtras().getString("USER_ID");
+        userId = getIntent().getExtras().getString("USER_ID");
+
 
         try{
             if(userId == null){
@@ -115,8 +129,10 @@ public class ProfielActivity extends AppCompatActivity {
             }
 
             //Setup Database & Authentication
-            userDatabaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId);
             currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            userDatabaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId);
+            currentUserDataReference = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+            conversationDatabase = FirebaseDatabase.getInstance().getReference("conversations");
             storage = FirebaseStorage.getInstance();
 
             //Populate Data
@@ -125,6 +141,7 @@ public class ProfielActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     //Fetch the user
                     User user = dataSnapshot.getValue(User.class);
+                    userProfile = user;
 
                     //Populate User Data
                     final File file;
@@ -206,9 +223,78 @@ public class ProfielActivity extends AppCompatActivity {
                 }
             });
 
+            //Fetch the Current Users Data;
+            currentUserDataReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    try{
+                        currentUserProfile = dataSnapshot.getValue(User.class);
+                    }catch (Exception ex){
+                        alert.showErrorMessage("Notification",ex.getMessage());
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
 
         }catch (Exception ex){
             alert.showErrorMessage("Notification",ex.getMessage());
+        }
+    }
+
+    public void SendMessage(View view){
+        try{
+            List<String> usersListOfConversationIds = userProfile.getConversationIds();
+            List<String> currentUserListOfConversationIds = currentUserProfile.getConversationIds();
+
+            String conversationId = null;
+
+            //Tracks if there is null
+            if(usersListOfConversationIds != null && currentUserListOfConversationIds != null){
+                //Check if there is a same conversation id in both of the users
+                Set<String> collections = new HashSet<String>();
+                collections.addAll(usersListOfConversationIds);
+                collections.retainAll(currentUserListOfConversationIds);
+
+                if(!collections.isEmpty()){
+                    conversationId = (String)collections.toArray()[0];
+                }
+            }
+
+            //If the conversation Id is not found
+            if(conversationId == null){
+                //Create a new Conversation
+                conversationId = conversationDatabase.push().getKey();
+
+                List<String> users = new ArrayList<String>();
+                users.add(currentUserProfile.getUid());
+                users.add(userProfile.getUid());
+
+                Conversation convo = new Conversation(conversationId,users);
+                conversationDatabase.child(conversationId).setValue(convo);
+
+                //Save from the users data
+                if(usersListOfConversationIds == null)
+                    userProfile.setConversationIds(new ArrayList<String>());
+
+                userProfile.getConversationIds().add(conversationId);
+                userDatabaseReference.setValue(userProfile);
+
+                if(currentUserListOfConversationIds == null)
+                    currentUserProfile.setConversationIds(new ArrayList<String>());
+
+                currentUserProfile.getConversationIds().add(conversationId);
+                currentUserDataReference.setValue(currentUserProfile);
+            }
+
+            Intent intent = new Intent(ProfielActivity.this,ChatActivity.class);
+            intent.putExtra("CONVERSATION_ID",conversationId);
+            startActivity(intent);
+        }catch (Exception ex){
+            alert.showErrorMessage("Notificaion",ex.getMessage());
         }
     }
 
@@ -237,5 +323,6 @@ public class ProfielActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        finish();
     }
 }

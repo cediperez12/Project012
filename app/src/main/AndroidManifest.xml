@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ProfielActivity"></activity>
+        <activity android:name=".ChatActivity"></activity>
+        <activity android:name=".ProfielActivity" />
         <activity android:name=".WorkerSetup" />
         <activity android:name=".Splash">
             <intent-filter>

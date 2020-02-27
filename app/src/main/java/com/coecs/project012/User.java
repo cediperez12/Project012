@@ -17,6 +17,8 @@ public class User {
 
     private WorkerProfile workerProfile;
 
+    private List<String> conversationIds;
+
     public User(String email, String password, String firstName, String lastName, String uid, String profileImagePath) {
         this.email = email;
         this.password = password;
@@ -38,7 +40,6 @@ public class User {
     public User(){
 
     }
-
 
     public String getUid() {
         return uid;
@@ -102,6 +103,14 @@ public class User {
 
     public void setWorkerProfile(WorkerProfile workerProfile) {
         this.workerProfile = workerProfile;
+    }
+
+    public List<String> getConversationIds() {
+        return conversationIds;
+    }
+
+    public void setConversationIds(List<String> conversationIds) {
+        this.conversationIds = conversationIds;
     }
 
     public static class WorkerProfile{
