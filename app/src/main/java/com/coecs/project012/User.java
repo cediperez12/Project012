@@ -1,6 +1,7 @@
 package com.coecs.project012;
 
 import java.util.List;
+import java.util.Map;
 
 public class User {
     private String email;
@@ -17,7 +18,7 @@ public class User {
 
     private WorkerProfile workerProfile;
 
-    private List<String> conversationIds;
+    private Map<String, Conversation.Message> conversationIds;
 
     public User(String email, String password, String firstName, String lastName, String uid, String profileImagePath) {
         this.email = email;
@@ -105,11 +106,11 @@ public class User {
         this.workerProfile = workerProfile;
     }
 
-    public List<String> getConversationIds() {
+    public Map<String, Conversation.Message> getConversationIds() {
         return conversationIds;
     }
 
-    public void setConversationIds(List<String> conversationIds) {
+    public void setConversationIds(Map<String, Conversation.Message> conversationIds) {
         this.conversationIds = conversationIds;
     }
 

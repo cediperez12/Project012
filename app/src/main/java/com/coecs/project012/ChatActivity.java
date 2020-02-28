@@ -29,6 +29,7 @@ import com.google.firebase.storage.StorageReference;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
@@ -178,7 +179,7 @@ public class ChatActivity extends AppCompatActivity {
 
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                        databaseError.toException().printStackTrace();
                                     }
                                 });
                             }
@@ -220,6 +221,13 @@ public class ChatActivity extends AppCompatActivity {
                 //Send the message
                 messages.add(message);
                 conversationContentReference.setValue(messages);
+
+                //Put up the last message in the users data
+                fromUser.getConversationIds().put(conversationId,message);
+                fromUserProfileReference.child("conversationIds").setValue(fromUser.getConversationIds());
+
+                toUser.getConversationIds().put(conversationId,message);
+                toUserProfileReference.child("conversationIds").setValue(toUser.getConversationIds());
             }
         }catch (Exception ex){
             alert.showErrorMessage("Notification",ex.getMessage());

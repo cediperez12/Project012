@@ -40,8 +40,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -247,8 +249,8 @@ public class ProfielActivity extends AppCompatActivity {
 
     public void SendMessage(View view){
         try{
-            List<String> usersListOfConversationIds = userProfile.getConversationIds();
-            List<String> currentUserListOfConversationIds = currentUserProfile.getConversationIds();
+            Map<String, Conversation.Message> usersListOfConversationIds = userProfile.getConversationIds();
+            Map<String, Conversation.Message> currentUserListOfConversationIds = currentUserProfile.getConversationIds();
 
             String conversationId = null;
 
@@ -256,8 +258,8 @@ public class ProfielActivity extends AppCompatActivity {
             if(usersListOfConversationIds != null && currentUserListOfConversationIds != null){
                 //Check if there is a same conversation id in both of the users
                 Set<String> collections = new HashSet<String>();
-                collections.addAll(usersListOfConversationIds);
-                collections.retainAll(currentUserListOfConversationIds);
+                collections.addAll(usersListOfConversationIds.keySet());
+                collections.retainAll(currentUserListOfConversationIds.keySet());
 
                 if(!collections.isEmpty()){
                     conversationId = (String)collections.toArray()[0];
@@ -278,16 +280,16 @@ public class ProfielActivity extends AppCompatActivity {
 
                 //Save from the users data
                 if(usersListOfConversationIds == null)
-                    userProfile.setConversationIds(new ArrayList<String>());
+                    userProfile.setConversationIds(new HashMap<String, Conversation.Message>());
 
-                userProfile.getConversationIds().add(conversationId);
-                userDatabaseReference.setValue(userProfile);
+                userProfile.getConversationIds().put(conversationId,new Conversation.Message());
+                userDatabaseReference.child("conversationIds").setValue(userProfile.getConversationIds());
 
                 if(currentUserListOfConversationIds == null)
-                    currentUserProfile.setConversationIds(new ArrayList<String>());
+                    currentUserProfile.setConversationIds(new HashMap<String, Conversation.Message>());
 
-                currentUserProfile.getConversationIds().add(conversationId);
-                currentUserDataReference.setValue(currentUserProfile);
+                currentUserProfile.getConversationIds().put(conversationId,new Conversation.Message());
+                currentUserDataReference.child("conversationIds").setValue(currentUserProfile.getConversationIds());
             }
 
             Intent intent = new Intent(ProfielActivity.this,ChatActivity.class);

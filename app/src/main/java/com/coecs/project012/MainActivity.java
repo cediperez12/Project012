@@ -107,6 +107,10 @@ public class MainActivity extends AppCompatActivity implements
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
                 switch (menuItem.getItemId()){
+                    case R.id.nav_messages:
+                        Intent intent2 = new Intent(getApplicationContext(),ConversationListActivity.class);
+                        startActivity(intent2);
+                        break;
 
                     case R.id.nav_worker_setup:
                         startActivity(new Intent(getApplicationContext(),WorkerSetup.class));
