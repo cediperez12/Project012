@@ -272,13 +272,19 @@ public class MainActivity extends AppCompatActivity implements
                     MainActivity.this.mapboxMap.setMinZoomPreference(15);
                     MainActivity.this.mapboxMap.setMaxZoomPreference(20);
 
-                    CameraPosition position = new CameraPosition.Builder()
-                            .target(location) // Sets the new camera position
-                            .zoom(15) // Sets the zoom
-                            .bearing(100) // Rotate the camera
-                            .build(); // Creates a CameraPosition from the builder
+                    if(location != null){
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(location) // Sets the new camera position
+                                .zoom(15) // Sets the zoom
+                                .bearing(100) // Rotate the camera
+                                .build(); // Creates a CameraPosition from the builder
 
-                    MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
+                        MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
+                    }else{
+                        throw new Exception("Cannot find location, please turn on your Location Services or GPS");
+                    }
+
+
                 }catch(Exception ex){
                     alert.showErrorMessage("Notification",ex.getMessage());
                 }

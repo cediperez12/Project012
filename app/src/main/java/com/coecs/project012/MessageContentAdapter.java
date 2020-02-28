@@ -93,6 +93,7 @@ public class MessageContentAdapter extends RecyclerView.Adapter<MessageContentAd
                 //Remove From and To Message Layout
                 holder.toLayout.setVisibility(View.GONE);
 
+                holder.txtvViewLocationLayout.setText("Your location");
                 holder.txtvViewLocationLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -113,7 +114,7 @@ public class MessageContentAdapter extends RecyclerView.Adapter<MessageContentAd
                         if(holder.txtvToStatus.getText().toString().equals(message.getMessageStatus())){
                             Calendar calendar = Calendar.getInstance();
                             calendar.setTimeInMillis(message.getDatetimeSent());
-                            holder.txtvToStatus.setText(calendar.toString());
+                            holder.txtvToStatus.setText(calendar.getTime().toString());
                         }else{
                             holder.txtvToStatus.setText(message.getMessageStatus());
                         }
@@ -132,7 +133,7 @@ public class MessageContentAdapter extends RecyclerView.Adapter<MessageContentAd
                 holder.txtvViewLocationLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Show an alert that this is your location.
+                        //Create an actvitiy that shows the location of the user.
                         Intent intent = new Intent();
                         intent.putExtra("LOCATION_VIEW_LAT",message.getLocation().getLat());
                         intent.putExtra("LOCATION_VIEW_LON",message.getLocation().getLng());
@@ -152,7 +153,7 @@ public class MessageContentAdapter extends RecyclerView.Adapter<MessageContentAd
                         if(holder.txtvFromStatus.getText().toString().equals(message.getMessageStatus())){
                             Calendar calendar = Calendar.getInstance();
                             calendar.setTimeInMillis(message.getDatetimeSent());
-                            holder.txtvFromStatus.setText(calendar.toString());
+                            holder.txtvFromStatus.setText(calendar.getTime().toString());
                         }else{
                             holder.txtvFromStatus.setText(message.getMessageStatus());
                         }

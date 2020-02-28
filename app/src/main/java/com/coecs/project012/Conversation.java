@@ -64,7 +64,7 @@ public class Conversation {
         this.conversationContent = conversationContent;
     }
 
-    public class Message{
+    public static class Message{
         private String messageContent;
         private String senderUid;
 
@@ -81,6 +81,8 @@ public class Conversation {
             this.messageContent = messageContent;
             this.senderUid = senderUid;
             this.datetimeSent = datetimeSent;
+            this.messageStatus = STATUS_SENT;
+            this.messageType = MESSAGE_TYPE_NORMAL;
         }
 
         //Sending normal Messages

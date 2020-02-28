@@ -171,6 +171,7 @@ public class Login extends AppCompatActivity {
                 });
 
             }catch (Exception ex){
+                pg.dismiss();
                 alert.showErrorMessage("Error",ex.getMessage());
             }
 
