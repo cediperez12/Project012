@@ -61,7 +61,6 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_services"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -72,7 +71,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/worker_mode_checker_layout">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <AutoCompleteTextView
+                    android:id="@+id/etxt_main_service"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/main_service"
@@ -160,13 +160,14 @@
                     android:src="@drawable/ic_add_black_24dp" />
             </RelativeLayout>
 
-            <ListView
+            <LinearLayout
                 android:id="@+id/listv_educational_attainment"
                 android:layout_width="match_parent"
-                android:layout_height="256dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"></ListView>
+                android:layout_marginEnd="16dp"></LinearLayout>
 
             <RelativeLayout
                 android:id="@+id/relativeLayout_experiences"
@@ -203,13 +204,14 @@
                     android:src="@drawable/ic_add_black_24dp" />
             </RelativeLayout>
 
-            <ListView
+            <LinearLayout
                 android:id="@+id/listv_experiences"
                 android:layout_width="match_parent"
-                android:layout_height="256dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"></ListView>
+                android:layout_marginEnd="16dp"></LinearLayout>
 
             <RelativeLayout
                 android:id="@+id/relativeLayout_skills"

@@ -28,10 +28,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -49,6 +51,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -58,6 +61,7 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
 
     private DatabaseReference userDr;
     private FirebaseAuth mAuth;
+    private DatabaseReference referenceForServices;
 
     private User currentUser;
 
@@ -65,11 +69,12 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
 
     private TextInputLayout tilServices;
     private ChipGroup cgSkills, cgOtherServices;
-    private ListView lvExperience, lvEducationAttainment;
+    private LinearLayout lvExperience, lvEducationAttainment;
     private CircleImageView civOtherServices, civEduc, civExperience, civSkills;
     private Switch swWorkMode;
     private CheckBox cbTermsAgreement;
     private TextView worker_setup_save_location_notfier_textv;
+    private AutoCompleteTextView etxt_main_service;
 
     private ArrayList<String> listSkills, listOtherServices; //Holders.
     private ArrayAdapter<String> listEducation, listExperice;
@@ -101,6 +106,7 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
         getSupportActionBar().setTitle("Worker Setup");
 
         tilServices = findViewById(R.id.til_services);
+        etxt_main_service = findViewById(R.id.etxt_main_service);
         cgSkills = findViewById(R.id.chip_group_skills);
         cgOtherServices = findViewById(R.id.chip_group_other_services);
 
@@ -121,6 +127,27 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
         //Setup Firebase
         mAuth = FirebaseAuth.getInstance();
         userDr = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getCurrentUser().getUid());
+        referenceForServices = FirebaseDatabase.getInstance().getReference("services");
+
+        //Setup Services
+        referenceForServices.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ArrayList<String> data = new ArrayList<>();
+
+                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                    data.add(ds.getValue(String.class));
+                }
+
+                etxt_main_service.setAdapter(new ArrayAdapter<String>(WorkerSetup.this,android.R.layout.simple_list_item_1,data));
+                etxt_main_service.clearFocus();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         //Show Progress Dialog
         progressDialog.show();
@@ -477,7 +504,7 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
         final ArrayAdapter<Integer> yearsListFrom = new ArrayAdapter<Integer>(this,android.R.layout.simple_dropdown_item_1line);
 
         //Loop to create a list of years;
-        for(int i = to-100; i<to; i++){
+        for(int i = to-50; i<to; i++){
             yearsListFrom.add(i);
         }
 
@@ -554,6 +581,9 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
     }
 
     private void LoadEducList(){
+        //Remove all Views
+        lvEducationAttainment.removeAllViews();
+
         //Check if lists exists
         if(currentUser.getWorkerProfile().getEducations() == null){
             currentUser.getWorkerProfile().setEducations(new ArrayList<User.EducationalAttainment>());
@@ -572,18 +602,16 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
 
             //Add the data to the adapter
             adapter.add(data);
-        }
 
-        //Set the adapter to the list
-        lvEducationAttainment.setAdapter(adapter);
+            View view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1,null,false);
 
-        //Setup Onclick
-        lvEducationAttainment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Get current position
-                final int pos = position;
+            final int position = i;
 
+            TextView textView = (TextView)view;
+            textView.setText(data);
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                 //Create Delete Dialog
                 AlertDialog deleteDialog = new AlertDialog.Builder(WorkerSetup.this)
                         .setTitle("Notification")
@@ -593,7 +621,7 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //Delete function
-                                currentUser.getWorkerProfile().getEducations().remove(pos);
+                                currentUser.getWorkerProfile().getEducations().remove(position);
 
                                 //Load List
                                 LoadEducList();
@@ -603,8 +631,11 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
 
                 //Show dialog
                 deleteDialog.show();
-            }
-        });
+                }
+            });
+
+            lvEducationAttainment.addView(textView);
+        }
     }
 
     public void addNewExperience(View v){
@@ -624,7 +655,7 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
         final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 
         //Create a loop for the years
-        for(int i = currentYear - 100; i<currentYear; i++){
+        for(int i = currentYear - 50; i<currentYear; i++){
             yearFromAdapter.add(i);
         }
 
@@ -709,6 +740,9 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
     }
 
     private void LoadExperienceList(){
+        //Remove All Views
+        lvExperience.removeAllViews();
+
         //Check if lists exists
         if(currentUser.getWorkerProfile().getExperiences() == null){
             currentUser.getWorkerProfile().setExperiences(new ArrayList<User.Experiences>());
@@ -723,12 +757,16 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
         //Fill the list using loop
         for(int i = 0; i<experiences.size(); i++){
             experiencesAdapter.add(experiences.get(i).toString());
-        }
 
-        lvExperience.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                //Create dialog for delete
+            final int position = i;
+
+            View view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1,null,false);
+            TextView textView = (TextView)view;
+            textView.setText(experiences.get(i).toString());
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    Create dialog for delete
                 AlertDialog dialogForDelete = new AlertDialog.Builder(WorkerSetup.this)
                         .setTitle("Notification")
                         .setMessage("Are you sure you want to delete " + experiencesAdapter.getItem(position) + "?")
@@ -743,11 +781,35 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
                         .create();
                 //Show Delete Dialog
                 dialogForDelete.show();
-            }
-        });
+                }
+            });
 
-        //Set adapter
-        lvExperience.setAdapter(experiencesAdapter);
+            lvExperience.addView(textView);
+        }
+
+//        lvExperience.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+//                //Create dialog for delete
+//                AlertDialog dialogForDelete = new AlertDialog.Builder(WorkerSetup.this)
+//                        .setTitle("Notification")
+//                        .setMessage("Are you sure you want to delete " + experiencesAdapter.getItem(position) + "?")
+//                        .setNegativeButton("No",null)
+//                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                currentUser.getWorkerProfile().getExperiences().remove(position);
+//                                LoadExperienceList();
+//                            }
+//                        })
+//                        .create();
+//                //Show Delete Dialog
+//                dialogForDelete.show();
+//            }
+//        });
+//
+//        //Set adapter
+//        lvExperience.setAdapter(experiencesAdapter);
     }
 
     public void saveWorkerSetup(View view){
@@ -771,8 +833,34 @@ public class WorkerSetup extends AppCompatActivity implements LocationListener {
                                 currentUser.getWorkerProfile().setTermsAndAgreement(cbTermsAgreement.isChecked());
                                 userDr.setValue(currentUser);
 
-                                worker_setup_save_location_notfier_textv.setText("New Location Saved!");
-                                worker_setup_save_location_notfier_textv.setVisibility(View.VISIBLE);
+                                if(swWorkMode.isChecked()){
+                                    worker_setup_save_location_notfier_textv.setText("New Location Saved!");
+                                    worker_setup_save_location_notfier_textv.setVisibility(View.VISIBLE);
+                                }
+
+                                referenceForServices = FirebaseDatabase.getInstance().getReference("services");
+                                referenceForServices.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        boolean isMentioned = false;
+                                        for(DataSnapshot ds : dataSnapshot.getChildren()){
+                                            String data = ds.getValue(String.class);
+
+                                            if(data.equals(currentUser.getWorkerProfile().getMainService())){
+                                                isMentioned = true;
+                                            }
+                                        }
+
+                                        if(!isMentioned){
+                                            referenceForServices.push().setValue(currentUser.getWorkerProfile().getMainService());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
                             }
                         })
                         .create();

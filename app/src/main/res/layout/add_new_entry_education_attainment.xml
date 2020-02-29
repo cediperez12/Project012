@@ -15,6 +15,7 @@
         android:ems="10"
         android:hint="School"
         android:inputType="textPersonName"
+        android:maxLength="24"
         android:textSize="14sp" />
 
     <EditText
@@ -27,6 +28,7 @@
         android:ems="10"
         android:hint="Course/Program/School Level"
         android:inputType="textPersonName"
+        android:maxLength="24"
         android:textSize="14sp" />
 
     <TextView
