@@ -14,15 +14,20 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements
     private TextView txtvProfileMainText;
     private TextView txtvProfileSubText;
 
+    private AutoCompleteTextView etxtMainServiceSearch;
+
     private FirebaseAuth auth;
     private FirebaseUser user;
     private FirebaseStorage storage;
@@ -85,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements
     private User currentUser;
 
     private ArrayList<User> workerLists;
+    private ArrayList<String> workerSuggestion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +143,124 @@ public class MainActivity extends AppCompatActivity implements
         toggle.syncState();
 
         init();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_sub_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.main_sub_menu_search:
+                //Create Dialog
+                searchPeople();
+                break;
+        }
+
+        return true;
+    }
+
+    private void searchPeople(){
+        //Find all the users that has etxts data
+        String data = etxtMainServiceSearch.getText().toString().trim();
+        final ArrayList<User> workersWithSearchedService = new ArrayList<>();
+
+        for(int i = 0; i<workerLists.size(); i++){
+            User user = workerLists.get(i);
+            if(user.getWorkerProfile().getMainService().equals(data)){
+                workersWithSearchedService.add(user);
+            }
+        }
+
+        String[] array = new String[workersWithSearchedService.size()];
+        for(int i = 0; i<workersWithSearchedService.size(); i++){
+            array[i] = workersWithSearchedService.get(i).getFirstName() + " " + workersWithSearchedService.get(i).getLastName();
+        }
+
+        //Create Dialog
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Search Results")
+                .setItems(array, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        User chosenWorker = workersWithSearchedService.get(which);
+                        viewPeople(chosenWorker);
+
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(new LatLng(chosenWorker.getWorkerProfile().getUserLocation().getLat(),chosenWorker.getWorkerProfile().getUserLocation().getLng())) // Sets the new camera position
+                                .zoom(15) // Sets the zoom
+                                .bearing(100) // Rotate the camera
+                                .build(); // Creates a CameraPosition from the builder
+
+                        MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
+
+                        etxtMainServiceSearch.setText("");
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        //Show Dialog
+        dialog.show();
+    }
+
+    private void viewPeople(User user){
+        //Fetch the view
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_profile_viewer,null,false);
+
+        //Get the components
+        final CircleImageView civ = view.findViewById(R.id.dialog_profile_viewer_civ);
+        TextView mainText = view.findViewById(R.id.dialog_profile_viewer_main_text);
+        TextView subText = view.findViewById(R.id.dialog_profile_viewer_sub_text);
+        TextView mainServiceText = view.findViewById(R.id.dialog_profile_viewer_main_service);
+        Button btnViewProfile = view.findViewById(R.id.dialog_profile_viewer_view_profile);
+
+        final User worker = user;
+
+        //Find the User Photo
+        final File file;
+        try {
+            file = File.createTempFile("image","png");
+            StorageReference reference = storage.getReference().child(user.getProfileImagePath());
+            reference.getFile(file)
+                    .addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
+                            if(task.isSuccessful()){
+                                Uri uri = Uri.fromFile(file);
+                                civ.setImageURI(uri);
+                            }else{
+                                task.getException().printStackTrace();
+                            }
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Set data to the view
+        mainText.setText(user.getFirstName() + " " + user.getLastName());
+        subText.setText(user.getEmail());
+        mainServiceText.setText(user.getWorkerProfile().getMainService());
+        btnViewProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Direct to Users Profile
+                Intent intent = new Intent(MainActivity.this,ProfielActivity.class);
+                intent.putExtra("USER_ID",worker.getUid());
+                startActivity(intent);
+            }
+        });
+
+        //Create dialog to show User Data
+        AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                .setView(view)
+                .create();
+
+        //Show dialog box
+        dialog.show();
     }
 
     @SuppressWarnings( {"MissingPermission"})
@@ -205,60 +331,7 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 }
 
-                //Fetch the view
-                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_profile_viewer,null,false);
-
-                //Get the components
-                final CircleImageView civ = view.findViewById(R.id.dialog_profile_viewer_civ);
-                TextView mainText = view.findViewById(R.id.dialog_profile_viewer_main_text);
-                TextView subText = view.findViewById(R.id.dialog_profile_viewer_sub_text);
-                TextView mainServiceText = view.findViewById(R.id.dialog_profile_viewer_main_service);
-                Button btnViewProfile = view.findViewById(R.id.dialog_profile_viewer_view_profile);
-
-                final User worker = user;
-
-                //Find the User Photo
-                final File file;
-                try {
-                    file = File.createTempFile("image","png");
-                    StorageReference reference = storage.getReference().child(user.getProfileImagePath());
-                    reference.getFile(file)
-                            .addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
-                                    if(task.isSuccessful()){
-                                        Uri uri = Uri.fromFile(file);
-                                        civ.setImageURI(uri);
-                                    }else{
-                                        task.getException().printStackTrace();
-                                    }
-                                }
-                            });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                //Set data to the view
-                mainText.setText(user.getFirstName() + " " + user.getLastName());
-                subText.setText(user.getEmail());
-                mainServiceText.setText(user.getWorkerProfile().getMainService());
-                btnViewProfile.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Direct to Users Profile
-                        Intent intent = new Intent(MainActivity.this,ProfielActivity.class);
-                        intent.putExtra("USER_ID",worker.getUid());
-                        startActivity(intent);
-                    }
-                });
-
-                //Create dialog to show User Data
-                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-                        .setView(view)
-                        .create();
-
-                //Show dialog box
-                dialog.show();
+                viewPeople(user);
 
                 return true;
             }
@@ -273,8 +346,8 @@ public class MainActivity extends AppCompatActivity implements
                     LatLng location = new LatLng(MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
                             MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
 
-                    MainActivity.this.mapboxMap.setMinZoomPreference(15);
-                    MainActivity.this.mapboxMap.setMaxZoomPreference(20);
+                    MainActivity.this.mapboxMap.setMinZoomPreference(100);
+                    MainActivity.this.mapboxMap.setMaxZoomPreference(15);
 
                     if(location != null){
                         CameraPosition position = new CameraPosition.Builder()
@@ -284,6 +357,8 @@ public class MainActivity extends AppCompatActivity implements
                                 .build(); // Creates a CameraPosition from the builder
 
                         MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
+
+                        refreshMap();
                     }else{
                         throw new Exception("Cannot find location, please turn on your Location Services or GPS");
                     }
@@ -313,12 +388,12 @@ public class MainActivity extends AppCompatActivity implements
         txtvProfileMainText = headerView.findViewById(R.id.navHeader_txtv_profile_main_text);
         txtvProfileSubText = headerView.findViewById(R.id.navHeader_txtv_profile_sub_text);
 
-        MainProfileSetup setup = new MainProfileSetup(this);
+        MainProfileSetup setup = new MainProfileSetup(MainActivity.this);
         setup.execute();
 
         alert = new Alert(this);
 
-        workerLists = new ArrayList<>();
+        etxtMainServiceSearch = findViewById(R.id.etxt_main_search_services);
     }
 
     public void refreshButton(View view){
@@ -327,6 +402,16 @@ public class MainActivity extends AppCompatActivity implements
 
     private void refreshMap(){
         try{
+            //Refreshes all the workers
+            workerLists = new ArrayList<>();
+            workerSuggestion = new ArrayList<>();
+
+
+            //Remove all markers if exists
+            for(Marker m : mapboxMap.getMarkers()){
+                mapboxMap.removeMarker(m);
+            }
+
             LatLng location = new LatLng(MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
                     MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
 
@@ -361,6 +446,9 @@ public class MainActivity extends AppCompatActivity implements
                             //Add to the list of worker
                             workerLists.add(user);
 
+                            //Add Worker's Service on the search list
+                            workerSuggestion.add(user.getWorkerProfile().getMainService());
+
                             //Get the Users postion
                             User.Location workerLocation = user.getWorkerProfile().getUserLocation();
 
@@ -371,6 +459,7 @@ public class MainActivity extends AppCompatActivity implements
                         }
 
                     }
+                    etxtMainServiceSearch.setAdapter(new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1,workerSuggestion));
                 }
 
                 @Override
@@ -382,8 +471,6 @@ public class MainActivity extends AppCompatActivity implements
             alert.showErrorMessage("Notification",ex.getMessage());
         }
     }
-
-
 
     private class MainProfileSetup extends AsyncTask<Void,Void,String>{
         private ProgressDialog pg;
@@ -433,8 +520,6 @@ public class MainActivity extends AppCompatActivity implements
                                             }else{
                                                 task.getException().printStackTrace();
                                             }
-
-                                            pg.dismiss();
                                         }
                                     });
                         } catch (IOException e) {
@@ -445,22 +530,19 @@ public class MainActivity extends AppCompatActivity implements
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
                         databaseError.toException().printStackTrace();
-                        pg.dismiss();
                     }
                 });
             }catch (Exception ex){
                 pg.dismiss();
                 new Alert(context).showErrorMessage("Notification",ex.getMessage());
             }
-
-
-
             return null;
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            pg.dismiss();
         }
     }
 
