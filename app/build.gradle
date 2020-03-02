@@ -48,4 +48,7 @@ dependencies {
 
     //Mapbox
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:8.6.2'
+
+    //RecyclerView Animations
+    implementation 'jp.wasabeef:recyclerview-animators:3.0.0'
 }

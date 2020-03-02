@@ -1,10 +1,13 @@
 package com.coecs.project012;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,11 +15,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,7 +40,7 @@ import java.util.List;
 public class ChatActivity extends AppCompatActivity {
     //Activity Components
     private Toolbar toolbar;
-    private RecyclerView recyclerViewchatView;
+    private ListView recyclerViewchatView;
     private EditText etxtMessageContent;
     private Button btnSendMessage;
 
@@ -150,8 +155,8 @@ public class ChatActivity extends AppCompatActivity {
 
                                 getSupportActionBar().setTitle(fromUser.getFirstName() + " " + fromUser.getLastName());
 
-                                conversationContentReference = conversationReference.child("conversationContent");
-                                conversationContentReference.addValueEventListener(new ValueEventListener() {
+                                conversationContentReference = FirebaseDatabase.getInstance().getReference("conversation").child(conversationId).child("convo");
+                                conversationContentReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         messages = new ArrayList<>();
@@ -165,16 +170,46 @@ public class ChatActivity extends AppCompatActivity {
                                             messages.add(message);
                                         }
 
-                                        MessageContentAdapter adapter = new MessageContentAdapter(ChatActivity.this,messages);
+                                        final MessageContentAdapter adapter = new MessageContentAdapter(ChatActivity.this,messages);
                                         adapter.setFromUser(fromUser);
                                         adapter.setToUser(toUser);
                                         adapter.setFromUserProfile(fromUserProfilePhoto);
                                         adapter.setToUserProfile(toUserProfilePhoto);
 
-                                        recyclerViewchatView.setHasFixedSize(true);
-                                        recyclerViewchatView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
-                                        recyclerViewchatView.setAdapter(adapter);
-                                        recyclerViewchatView.scrollToPosition(adapter.getItemCount() -1);
+                                        recyclerViewchatView.setOnScrollListener(null);
+
+                                        conversationContentReference.addChildEventListener(new ChildEventListener() {
+                                            @Override
+                                            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                                                messages.add(dataSnapshot.getValue(Conversation.Message.class));
+                                                adapter.setFromUser(fromUser);
+                                                adapter.setToUser(toUser);
+                                                adapter.setFromUserProfile(fromUserProfilePhoto);
+                                                adapter.setToUserProfile(toUserProfilePhoto);
+                                                recyclerViewchatView.setAdapter(adapter);
+                                                recyclerViewchatView.setSelection(adapter.getCount() - 1);
+                                            }
+
+                                            @Override
+                                            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                                            }
+
+                                            @Override
+                                            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                                            }
+
+                                            @Override
+                                            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                            }
+                                        });
                                     }
 
                                     @Override
@@ -218,9 +253,13 @@ public class ChatActivity extends AppCompatActivity {
                 conversation.setLastMessage(message);
                 conversationReference.setValue(conversation);
 
-                //Send the message
-                messages.add(message);
-                conversationContentReference.setValue(messages);
+                //Send message
+                FirebaseDatabase.getInstance().getReference("conversation").child(conversationId).child("convo").push().setValue(message).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        etxtMessageContent.setText("");
+                    }
+                });
 
                 //Put up the last message in the users data
                 fromUser.getConversationIds().put(conversationId,message);
@@ -237,6 +276,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        finish();
     }
 
     @Override

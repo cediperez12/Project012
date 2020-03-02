@@ -42,12 +42,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <ListView
         android:id="@+id/recyclerview_chat_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/etxt_chat_message_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chat_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/chat_toolbar"
+        tools:listitem="@tools:sample/cities" />
 </androidx.constraintlayout.widget.ConstraintLayout>

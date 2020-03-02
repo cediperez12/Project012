@@ -1,17 +1,18 @@
 package com.coecs.project012;
 
 import java.util.List;
+import java.util.Map;
 
 public class Conversation {
     private String coversationId;
     private List<String> usersId;
     private Message lastMessage;
     private String conversationStatus;
-    private List<Message> conversationContent;
+    private Map<String,Message> conversationContent;
     private User.Location location;
 
-    public static final String STATUS_SEEN = "READED";
-    public static final String STATUS_SENT = "SENT";
+    public static final String STATUS_SEEN = "Seen";
+    public static final String STATUS_SENT = "Sent";
 
     public static final String MESSAGE_TYPE_VIEW_LOCATION = "VIEW_LOCATION";
     public static final String MESSAGE_TYPE_NORMAL = "NORMAL";
@@ -56,11 +57,11 @@ public class Conversation {
         this.conversationStatus = conversationStatus;
     }
 
-    public List<Message> getConversationContent() {
+    public Map<String, Message> getConversationContent() {
         return conversationContent;
     }
 
-    public void setConversationContent(List<Message> conversationContent) {
+    public void setConversationContent(Map<String, Message> conversationContent) {
         this.conversationContent = conversationContent;
     }
 

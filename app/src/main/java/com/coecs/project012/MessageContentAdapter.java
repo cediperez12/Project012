@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -14,10 +15,11 @@ import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MessageContentAdapter extends RecyclerView.Adapter<MessageContentAdapter.ViewHolder> {
+public class MessageContentAdapter extends ArrayAdapter<Conversation.Message> {
     private Uri fromUserProfile;
     private Uri toUserProfile;
 
@@ -30,10 +32,8 @@ public class MessageContentAdapter extends RecyclerView.Adapter<MessageContentAd
 
     private Alert alert;
 
-    public MessageContentAdapter() {
-    }
-
     public MessageContentAdapter(Context context,List<Conversation.Message> conversationContent) {
+        super(context,R.layout.conversation_list_item,conversationContent);
         alert = new Alert(context);
         this.context = context;
         this.conversationContent = conversationContent;
@@ -73,103 +73,73 @@ public class MessageContentAdapter extends RecyclerView.Adapter<MessageContentAd
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View item = inflater.inflate(R.layout.chat_layout_item,parent,false);
-        ViewHolder viewHolder = new ViewHolder(item);
-        return viewHolder;
-    }
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        final Conversation.Message m = getItem(position);
+        final boolean statusViewer =  false;
 
-    @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        final Conversation.Message message = conversationContent.get(position);
+        ViewHolder holder = null;
+        if(convertView == null){
+            convertView = LayoutInflater.from(context).inflate(R.layout.chat_layout_item,parent,false);
+            holder = new ViewHolder(convertView);
+            convertView.setTag(holder);
+        }else{
+            holder = (ViewHolder)convertView.getTag();
+        }
 
-        if(message.getSenderUid().equals(toUser.getUid())){
-            //To User
+        if(toUser.getUid().equals(m.getSenderUid())){
+            //To user is the sender.
             holder.fromLayout.setVisibility(View.GONE);
-
-            if(message.getMessageType().equals(Conversation.MESSAGE_TYPE_VIEW_LOCATION)){
-                //Message Type is Requires View Location
-                //Remove From and To Message Layout
+            if(m.getMessageType().equals(Conversation.MESSAGE_TYPE_VIEW_LOCATION)){
+                //Message is a Location Viewer
                 holder.toLayout.setVisibility(View.GONE);
-
-                holder.txtvViewLocationLayout.setText("Your location");
-                holder.txtvViewLocationLayout.setOnClickListener(new View.OnClickListener() {
+                holder.txtvViewLocationLayout.setText("My Location");
+                convertView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Show an alert that this is your location.
-                        alert.showErrorMessage("Notification","This is your own location.");
+                        new Alert(context).showErrorMessage("Notification","This is your own location.");
                     }
                 });
             }else{
+                //Message is not a Location Viewer
                 holder.viewLocationLayout.setVisibility(View.GONE);
 
-                holder.civTo.setImageURI(toUserProfile);
-                holder.txtvToMessage.setText(message.getMessageContent());
-                holder.txtvToStatus.setText(message.getMessageStatus());
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(m.getDatetimeSent());
 
-                holder.txtvToMessage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(holder.txtvToStatus.getText().toString().equals(message.getMessageStatus())){
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTimeInMillis(message.getDatetimeSent());
-                            holder.txtvToStatus.setText(calendar.getTime().toString());
-                        }else{
-                            holder.txtvToStatus.setText(message.getMessageStatus());
-                        }
-                    }
-                });
+                //Setup Message
+                holder.civTo.setImageURI(toUserProfile);
+                holder.txtvToMessage.setText(m.getMessageContent());
+                holder.txtvToStatus.setText(m.getMessageStatus() + " - " + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE) + "/" + calendar.get(Calendar.YEAR));
             }
         }else{
-            //From User
+            //From user is the sender
             holder.toLayout.setVisibility(View.GONE);
-            if(message.getMessageType().equals(Conversation.MESSAGE_TYPE_VIEW_LOCATION)){
-                //Message Type is Requires View Location
-                //Remove From and To Message Layout
+            if(m.getMessageType().equals(Conversation.MESSAGE_TYPE_VIEW_LOCATION)){
                 holder.fromLayout.setVisibility(View.GONE);
-
-                holder.txtvViewLocationLayout.setText("View this persons Location.");
-                holder.txtvViewLocationLayout.setOnClickListener(new View.OnClickListener() {
+                holder.txtvViewLocationLayout.setText("View Persons Location");
+                convertView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Create an actvitiy that shows the location of the user.
-                        Intent intent = new Intent();
-                        intent.putExtra("LOCATION_VIEW_LAT",message.getLocation().getLat());
-                        intent.putExtra("LOCATION_VIEW_LON",message.getLocation().getLng());
-                        context.startActivity(intent);
+                        //Intent to Location Viewer
                     }
                 });
             }else{
-                holder.viewLocationLayout.setVisibility(View.GONE);
+                holder.txtvViewLocationLayout.setVisibility(View.GONE);
 
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(m.getDatetimeSent());
+
+                //Setup Message
                 holder.civFrom.setImageURI(fromUserProfile);
-                holder.txtvFromMessage.setText(message.getMessageContent());
-                holder.txtvFromStatus.setText(message.getMessageStatus());
-
-                holder.txtvFromMessage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(holder.txtvFromStatus.getText().toString().equals(message.getMessageStatus())){
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTimeInMillis(message.getDatetimeSent());
-                            holder.txtvFromStatus.setText(calendar.getTime().toString());
-                        }else{
-                            holder.txtvFromStatus.setText(message.getMessageStatus());
-                        }
-                    }
-                });
+                holder.txtvFromMessage.setText(m.getMessageContent());
+                holder.txtvToStatus.setText(m.getMessageStatus() + " - " + calendar.get(Calendar.DATE));
             }
         }
 
+        return convertView;
     }
 
-    @Override
-    public int getItemCount() {
-        return conversationContent.size();
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder{
 
         public CircleImageView civFrom,civTo;
         public TextView txtvFromMessage,txtvToMessage;
@@ -178,8 +148,7 @@ public class MessageContentAdapter extends RecyclerView.Adapter<MessageContentAd
 
         public RelativeLayout fromLayout,toLayout,viewLocationLayout;
 
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
+        public ViewHolder(View itemView) {
             fromLayout = itemView.findViewById(R.id.layout_from_messages);
             civFrom = itemView.findViewById(R.id.chat_civ_head_from);
             txtvFromMessage = itemView.findViewById(R.id.chat_txtv_message_content_from);

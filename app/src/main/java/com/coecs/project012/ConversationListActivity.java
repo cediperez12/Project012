@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,6 +34,7 @@ public class ConversationListActivity extends AppCompatActivity {
     //Activity Components
     private Toolbar toolbar;
     private RecyclerView recyclerView;
+    private TextView txtvEmptyList;
 
     //Database
     private DatabaseReference conversations;
@@ -49,6 +52,7 @@ public class ConversationListActivity extends AppCompatActivity {
     private void init(){
         toolbar = findViewById(R.id.chat_list_toolbar);
         recyclerView = findViewById(R.id.recylerView_conversation_list);
+        txtvEmptyList = findViewById(R.id.txtv_empty_list_notif);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         conversations = FirebaseDatabase.getInstance().getReference("conversations");
@@ -57,6 +61,7 @@ public class ConversationListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Messages");
 
         //Fill in recylcerView
         userConversationLists.addValueEventListener(new ValueEventListener() {
@@ -68,12 +73,17 @@ public class ConversationListActivity extends AppCompatActivity {
                     Message message = ds.getValue(Message.class);
                     map.put(key,message);
                 }
-                List<String> listOfConversationIds = sortMap(map);
 
-                MessageListsAdapter adapter = new MessageListsAdapter(ConversationListActivity.this,listOfConversationIds);
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setLayoutManager(new LinearLayoutManager(ConversationListActivity.this));
-                recyclerView.setAdapter(adapter);
+                if(map != null){
+                    txtvEmptyList.setVisibility(View.GONE);
+                    List<String> listOfConversationIds = sortMap(map);
+
+                    MessageListsAdapter adapter = new MessageListsAdapter(ConversationListActivity.this,listOfConversationIds);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(ConversationListActivity.this));
+                    recyclerView.setAdapter(adapter);
+                }else{
+                    txtvEmptyList.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override

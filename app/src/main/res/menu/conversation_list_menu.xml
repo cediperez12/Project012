@@ -6,8 +6,11 @@
         android:id="@+id/convo_list_search"
         android:title="Search"
         android:icon="@drawable/ic_search"
+        android:visible="false"
         app:showAsAction="always"/>
     <item
         android:id="@+id/convo_list_refresh"
+        android:icon="@drawable/ic_refresh_black_24dp"
+        app:showAsAction="always"
         android:title="Refresh" />
 </menu>
