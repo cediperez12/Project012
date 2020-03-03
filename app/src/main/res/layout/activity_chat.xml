@@ -42,13 +42,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <ListView
-        android:id="@+id/recyclerview_chat_view"
+    <ScrollView
+        android:id="@+id/scChatList"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/etxt_chat_message_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chat_toolbar"
-        tools:listitem="@tools:sample/cities" />
+        app:layout_constraintTop_toBottomOf="@+id/chat_toolbar" >
+
+        <LinearLayout
+            android:id="@+id/linear_layout_chat_lists"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -30,7 +30,7 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <ScrollView
         android:id="@+id/recylerView_conversation_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -38,7 +38,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chat_list_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/chat_list_toolbar" >
+
+        <LinearLayout
+            android:id="@+id/linearLayoutConversationList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+    </ScrollView>
 
     <TextView
         android:id="@+id/txtv_empty_list_notif"

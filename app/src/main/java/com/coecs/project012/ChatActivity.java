@@ -6,16 +6,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import de.hdodenhof.circleimageview.CircleImageView;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -40,7 +47,8 @@ import java.util.List;
 public class ChatActivity extends AppCompatActivity {
     //Activity Components
     private Toolbar toolbar;
-    private ListView recyclerViewchatView;
+    private LinearLayout linearLayoutChatLists;
+    private ScrollView scChatList;
     private EditText etxtMessageContent;
     private Button btnSendMessage;
 
@@ -72,7 +80,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private void init(){
         toolbar = findViewById(R.id.chat_toolbar);
-        recyclerViewchatView = findViewById(R.id.recyclerview_chat_view);
+        linearLayoutChatLists = findViewById(R.id.linear_layout_chat_lists);
+        scChatList = findViewById(R.id.scChatList);
         etxtMessageContent = findViewById(R.id.etxt_chat_message_content);
         btnSendMessage = findViewById(R.id.btn_chat_send_message);
 
@@ -97,133 +106,94 @@ public class ChatActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 conversation = dataSnapshot.getValue(Conversation.class);
 
-                if(conversation.getUsersId().get(0).equals(currentUser.getUid())){
-                    toUserProfileReference = FirebaseDatabase.getInstance().getReference("users").child(conversation.getUsersId().get(0));
-                    fromUserProfileReference = FirebaseDatabase.getInstance().getReference("users").child(conversation.getUsersId().get(1));
+                final String toUserId,fromUserId;
+
+                final User[] users = new User[2];
+                final Uri[] usersProfile = new Uri[2];
+
+                if(currentUser.getUid().equals(conversation.getUsersId().get(0))){
+                    toUserId = conversation.getUsersId().get(0);
+                    fromUserId = conversation.getUsersId().get(1);
                 }else{
-                    toUserProfileReference = FirebaseDatabase.getInstance().getReference("users").child(conversation.getUsersId().get(1));
-                    fromUserProfileReference = FirebaseDatabase.getInstance().getReference("users").child(conversation.getUsersId().get(0));
+                    toUserId = conversation.getUsersId().get(1);
+                    fromUserId = conversation.getUsersId().get(0);
                 }
 
-                toUserProfileReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                final DatabaseReference toUserReference = FirebaseDatabase.getInstance().getReference("users").child(toUserId);
+                final DatabaseReference fromUserReference = FirebaseDatabase.getInstance().getReference("users").child(fromUserId);
+
+                toUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        toUser = dataSnapshot.getValue(User.class);
+                        users[0] = dataSnapshot.getValue(User.class);
+                        toUser = users[0];
 
                         final File file;
                         try{
                             file = File.createTempFile("image","png");
-                            StorageReference reference = FirebaseStorage.getInstance().getReference().child(toUser.getProfileImagePath());
-                            reference.getFile(file)
-                                    .addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                            StorageReference storageReference = FirebaseStorage.getInstance().getReference(users[0].getProfileImagePath());
+                            storageReference.getFile(file).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        usersProfile[0] = Uri.fromFile(file);
+                                    }
+
+                                    fromUserReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
-                                        public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
-                                            if(task.isSuccessful()){
-                                                toUserProfilePhoto = Uri.fromFile(file);
-                                            }else{
-                                                task.getException().toString();
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            users[1] = dataSnapshot.getValue(User.class);
+                                            fromUser = users[1];
+
+                                            getSupportActionBar().setTitle(fromUser.getFirstName());
+
+                                            final File file2;
+                                            try{
+                                                file2 = File.createTempFile("image","png");
+                                                StorageReference reference = FirebaseStorage.getInstance().getReference(users[1].getProfileImagePath());
+                                                reference.getFile(file2).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
+                                                        if(task.isSuccessful()){
+                                                            usersProfile[1] = Uri.fromFile(file2);
+                                                        }
+
+                                                        final DatabaseReference referenceForConversation = FirebaseDatabase.getInstance().getReference("conversation").child(conversationId).child("convo");
+                                                        referenceForConversation.addValueEventListener(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                                Log.d("CHAT EVENT LISTENER","RUNNING");
+                                                                linearLayoutChatLists.removeAllViews();
+                                                                messages = new ArrayList<>();
+                                                                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                                                                    messages.add(ds.getValue(Conversation.Message.class));
+                                                                }
+                                                                Log.d(Integer.toString(messages.size()),Long.toString(dataSnapshot.getChildrenCount()));
+                                                                SetupChatList(messages,users,usersProfile);
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                                databaseError.toException().printStackTrace();
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }catch (Exception ex){
+                                                ex.printStackTrace();
                                             }
                                         }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
                                     });
+                                }
+                            });
                         }catch (Exception ex){
                             ex.printStackTrace();
                         }
-
-                        fromUserProfileReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                fromUser = dataSnapshot.getValue(User.class);
-
-                                final File file;
-                                try{
-                                    file = File.createTempFile("image","png");
-                                    StorageReference reference = FirebaseStorage.getInstance().getReference().child(fromUser.getProfileImagePath());
-                                    reference.getFile(file)
-                                            .addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
-                                                    try{
-                                                        fromUserProfilePhoto = Uri.fromFile(file);
-                                                    }catch (Exception ex){
-                                                        ex.printStackTrace();
-                                                    }
-                                                }
-                                            });
-                                }catch (Exception ex){
-                                    ex.printStackTrace();
-                                }
-
-                                getSupportActionBar().setTitle(fromUser.getFirstName() + " " + fromUser.getLastName());
-
-                                conversationContentReference = FirebaseDatabase.getInstance().getReference("conversation").child(conversationId).child("convo");
-                                conversationContentReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        messages = new ArrayList<>();
-                                        for(DataSnapshot ds : dataSnapshot.getChildren()){
-                                            Conversation.Message message = ds.getValue(Conversation.Message.class);
-
-                                            if(!message.getSenderUid().equals(currentUser.getUid()) && message.getMessageStatus().equals(Conversation.STATUS_SENT)){
-                                                message.setMessageStatus(Conversation.STATUS_SEEN);
-                                            }
-
-                                            messages.add(message);
-                                        }
-
-                                        final MessageContentAdapter adapter = new MessageContentAdapter(ChatActivity.this,messages);
-                                        adapter.setFromUser(fromUser);
-                                        adapter.setToUser(toUser);
-                                        adapter.setFromUserProfile(fromUserProfilePhoto);
-                                        adapter.setToUserProfile(toUserProfilePhoto);
-
-                                        recyclerViewchatView.setOnScrollListener(null);
-
-                                        conversationContentReference.addChildEventListener(new ChildEventListener() {
-                                            @Override
-                                            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                                                messages.add(dataSnapshot.getValue(Conversation.Message.class));
-                                                adapter.setFromUser(fromUser);
-                                                adapter.setToUser(toUser);
-                                                adapter.setFromUserProfile(fromUserProfilePhoto);
-                                                adapter.setToUserProfile(toUserProfilePhoto);
-                                                recyclerViewchatView.setAdapter(adapter);
-                                                recyclerViewchatView.setSelection(adapter.getCount() - 1);
-                                            }
-
-                                            @Override
-                                            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                                            }
-
-                                            @Override
-                                            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                                            }
-
-                                            @Override
-                                            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                                            }
-
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                                        databaseError.toException().printStackTrace();
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
                     }
 
                     @Override
@@ -236,6 +206,171 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
+            }
+        });
+    }
+
+    private void AddNewMessage(Conversation.Message message, User[] userLists,  Uri[] userProfile){
+        View itemView = LayoutInflater.from(this).inflate(R.layout.chat_layout_item,null,false);
+
+        CircleImageView civFrom,civTo;
+        TextView txtvFromMessage,txtvToMessage;
+        TextView txtvFromStatus,txtvToStatus;
+        TextView txtvViewLocationLayout;
+
+        RelativeLayout fromLayout,toLayout,viewLocationLayout;
+
+        fromLayout = itemView.findViewById(R.id.layout_from_messages);
+        civFrom = itemView.findViewById(R.id.chat_civ_head_from);
+        txtvFromMessage = itemView.findViewById(R.id.chat_txtv_message_content_from);
+        txtvFromStatus = itemView.findViewById(R.id.chat_txtv_message_status);
+
+        toLayout = itemView.findViewById(R.id.layout_to_messages);
+        civTo = itemView.findViewById(R.id.chat_civ_head_to);
+        txtvToMessage = itemView.findViewById(R.id.chat_txtv_message_content_to);
+        txtvToStatus = itemView.findViewById(R.id.txtv_to_message_status);
+
+        viewLocationLayout = itemView.findViewById(R.id.chat_layout_view_location);
+        txtvViewLocationLayout = itemView.findViewById(R.id.chat_view_location_textv);
+
+        Conversation.Message m = message;
+        if(userLists[0].getUid().equals(m.getSenderUid())){
+            //To user is the sender.
+            fromLayout.setVisibility(View.GONE);
+            if(m.getMessageType().equals(Conversation.MESSAGE_TYPE_VIEW_LOCATION)){
+                //Message is a Location Viewer
+                toLayout.setVisibility(View.GONE);
+                txtvViewLocationLayout.setText("My Location");
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new Alert(ChatActivity.this).showErrorMessage("Notification","This is your own location.");
+                    }
+                });
+            }else{
+                //Message is not a Location Viewer
+                viewLocationLayout.setVisibility(View.GONE);
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(m.getDatetimeSent());
+
+                //Setup Message
+                civTo.setImageURI(userProfile[0]);
+                txtvToMessage.setText(m.getMessageContent());
+                txtvToStatus.setText(m.getMessageStatus() + " - " + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE) + "/" + calendar.get(Calendar.YEAR));
+            }
+        }else{
+            //From user is the sender
+            toLayout.setVisibility(View.GONE);
+            if(m.getMessageType().equals(Conversation.MESSAGE_TYPE_VIEW_LOCATION)){
+                fromLayout.setVisibility(View.GONE);
+                txtvViewLocationLayout.setText("View Persons Location");
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Intent to Location Viewer
+                    }
+                });
+            }else{
+                txtvViewLocationLayout.setVisibility(View.GONE);
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(m.getDatetimeSent());
+
+                //Setup Message
+                civFrom.setImageURI(userProfile[1]);
+                txtvFromMessage.setText(m.getMessageContent());
+                txtvFromStatus.setText(m.getMessageStatus() + " - " + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE) + "/" + calendar.get(Calendar.YEAR));
+            }
+        }
+
+        linearLayoutChatLists.addView(itemView);
+    }
+
+    private void SetupChatList(List<Conversation.Message> messages,User[] userLists,  Uri[] userProfile){
+        for(Conversation.Message m : messages){
+            //Setup View
+            View itemView = LayoutInflater.from(this).inflate(R.layout.chat_layout_item,null,false);
+
+            CircleImageView civFrom,civTo;
+            TextView txtvFromMessage,txtvToMessage;
+            TextView txtvFromStatus,txtvToStatus;
+            TextView txtvViewLocationLayout;
+
+            RelativeLayout fromLayout,toLayout,viewLocationLayout;
+
+            fromLayout = itemView.findViewById(R.id.layout_from_messages);
+            civFrom = itemView.findViewById(R.id.chat_civ_head_from);
+            txtvFromMessage = itemView.findViewById(R.id.chat_txtv_message_content_from);
+            txtvFromStatus = itemView.findViewById(R.id.chat_txtv_message_status);
+
+            toLayout = itemView.findViewById(R.id.layout_to_messages);
+            civTo = itemView.findViewById(R.id.chat_civ_head_to);
+            txtvToMessage = itemView.findViewById(R.id.chat_txtv_message_content_to);
+            txtvToStatus = itemView.findViewById(R.id.txtv_to_message_status);
+
+            viewLocationLayout = itemView.findViewById(R.id.chat_layout_view_location);
+            txtvViewLocationLayout = itemView.findViewById(R.id.chat_view_location_textv);
+
+            Log.d(m.getSenderUid(),m.getMessageContent());
+
+            if(userLists[0].getUid().equals(m.getSenderUid())){
+                //To user is the sender.
+                fromLayout.setVisibility(View.GONE);
+                if(m.getMessageType().equals(Conversation.MESSAGE_TYPE_VIEW_LOCATION)){
+                    //Message is a Location Viewer
+                    toLayout.setVisibility(View.GONE);
+                    txtvViewLocationLayout.setText("My Location");
+                    itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            new Alert(ChatActivity.this).showErrorMessage("Notification","This is your own location.");
+                        }
+                    });
+                }else{
+                    //Message is not a Location Viewer
+                    viewLocationLayout.setVisibility(View.GONE);
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(m.getDatetimeSent());
+
+                    //Setup Message
+                    civTo.setImageURI(userProfile[0]);
+                    txtvToMessage.setText(m.getMessageContent());
+                    txtvToStatus.setText(m.getMessageStatus() + " - " + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE) + "/" + calendar.get(Calendar.YEAR));
+                }
+            }else{
+                //From user is the sender
+                toLayout.setVisibility(View.GONE);
+                if(m.getMessageType().equals(Conversation.MESSAGE_TYPE_VIEW_LOCATION)){
+                    fromLayout.setVisibility(View.GONE);
+                    txtvViewLocationLayout.setText("View Persons Location");
+                    itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //Intent to Location Viewer
+                        }
+                    });
+                }else{
+                    txtvViewLocationLayout.setVisibility(View.GONE);
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(m.getDatetimeSent());
+
+                    //Setup Message
+                    civFrom.setImageURI(userProfile[1]);
+                    txtvFromMessage.setText(m.getMessageContent());
+                    txtvFromStatus.setText(m.getMessageStatus() + " - " + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE) + "/" + calendar.get(Calendar.YEAR));
+                }
+            }
+
+            linearLayoutChatLists.addView(itemView);
+        }
+
+        scChatList.post(new Runnable() {
+            @Override
+            public void run() {
+                scChatList.scrollTo(0,linearLayoutChatLists.getBottom());
             }
         });
     }
@@ -263,9 +398,11 @@ public class ChatActivity extends AppCompatActivity {
 
                 //Put up the last message in the users data
                 fromUser.getConversationIds().put(conversationId,message);
+                fromUserProfileReference = FirebaseDatabase.getInstance().getReference("users").child(fromUser.getUid());
                 fromUserProfileReference.child("conversationIds").setValue(fromUser.getConversationIds());
 
                 toUser.getConversationIds().put(conversationId,message);
+                toUserProfileReference = FirebaseDatabase.getInstance().getReference("users").child(toUser.getUid());
                 toUserProfileReference.child("conversationIds").setValue(toUser.getConversationIds());
             }
         }catch (Exception ex){
@@ -289,4 +426,18 @@ public class ChatActivity extends AppCompatActivity {
 
         return true;
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        linearLayoutChatLists.removeAllViews();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        linearLayoutChatLists.removeAllViews();
+    }
+
+
 }
