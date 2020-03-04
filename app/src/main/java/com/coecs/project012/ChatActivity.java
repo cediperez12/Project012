@@ -2,24 +2,34 @@ package com.coecs.project012;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
+import android.Manifest;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -44,7 +54,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity implements LocationListener {
     //Activity Components
     private Toolbar toolbar;
     private LinearLayout linearLayoutChatLists;
@@ -210,7 +220,211 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void AddNewMessage(Conversation.Message message, User[] userLists,  Uri[] userProfile){
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.message_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.message_menu_send_loc:
+                //Send Location
+                sendLocation();
+                break;
+            case R.id.message_menu_add_rev:
+                //Create new Review
+                createReview();
+                break;
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+
+        return true;
+    }
+
+    private void sendLocation(){
+        try {//Find Restrictions
+            //Create Dialog for confirmation
+            AlertDialog confirmationDialog = new AlertDialog.Builder(ChatActivity.this)
+                    .setTitle("Notification")
+                    .setMessage("This act will give save your location and will be seen by other user for them to contact you. Are you sure you want to save your location?")
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try{
+                                if(ActivityCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                                    ActivityCompat.requestPermissions(ChatActivity.this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},1);
+                                }else{
+                                    LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+
+                                    boolean network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                                    boolean gpsConnection = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+                                    if(network){
+                                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,1,ChatActivity.this);
+
+                                        if(locationManager != null){
+                                            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                                            if(location != null){
+                                                //Create Message
+                                                User.Location localLoc = new User.Location();
+                                                localLoc.setLat(location.getLatitude());
+                                                localLoc.setLng(location.getLongitude());
+                                                Conversation.Message message = new Conversation.Message(currentUser.getUid(),Calendar.getInstance().getTimeInMillis(),localLoc);
+                                                FirebaseDatabase.getInstance().getReference("conversation").child(conversationId).child("convo").push().setValue(message);
+                                            }else{
+                                                throw new Exception("Failed to fetch your location. Please try again later.");
+                                            }
+                                        }
+                                    }else if(gpsConnection){
+                                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,1,ChatActivity.this);
+
+                                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                                        if(location != null){
+                                            //Create Message
+                                            User.Location localLoc = new User.Location();
+                                            localLoc.setLat(location.getLatitude());
+                                            localLoc.setLng(location.getLongitude());
+                                            Conversation.Message message = new Conversation.Message(currentUser.getUid(),Calendar.getInstance().getTimeInMillis(),localLoc);
+                                            FirebaseDatabase.getInstance().getReference("conversation").child(conversationId).child("convo").push().setValue(message);
+                                        }else{
+                                            throw new Exception("Failed to fetch your location. Please try again later.");
+                                        }
+                                    }else{
+                                        throw new Exception("Please turn on your GPS/Location and Internet Connection");
+                                    }
+                                }
+                            }catch (Exception ex){
+                                alert.showErrorMessage("Notification",ex.getMessage());
+                            }
+                        }
+                    })
+                    .create();
+
+            //Show dialog
+            confirmationDialog.show();
+        }catch (Exception ex){
+            alert.showErrorMessage("Notification",ex.getMessage());
+        }
+    }
+
+    private void createReview(){
+        if(fromUser.getReviews() != null){
+            //Check if you already reviewed the person
+            User.Review rev = fromUser.getReviews().get(currentUser.getUid());
+
+            if(rev != null){
+                //You already have a review for this person.
+                reviewDialog(rev);
+            }else{
+                //You did not reviewed the person yet.
+                reviewDialog();
+            }
+        }else{
+            reviewDialog();
+        }
+    }
+
+    private void reviewDialog(User.Review review){
+        //Create Dialog
+        View view = getLayoutInflater().inflate(R.layout.create_review_layout,null,false);
+        final EditText etxtReviewContent = view.findViewById(R.id.etxt_review_content);
+        final RatingBar ratingBar = view.findViewById(R.id.review_rating_bar);
+
+        etxtReviewContent.setText(review.getReviewContent());
+        ratingBar.setRating(review.getStars());
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Change the review for this person.")
+                .setView(view)
+                .setNegativeButton("Cancel",null)
+                .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        User.Review newReview = new User.Review(currentUser.getUid(),etxtReviewContent.getText().toString().trim(),(int)ratingBar.getRating(),Calendar.getInstance().getTimeInMillis());
+
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users").child(fromUser.getUid()).child("reviews");
+                        reference.child(currentUser.getUid()).setValue(newReview).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    FirebaseDatabase.getInstance().getReference(fromUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            fromUser = dataSnapshot.getValue(User.class);
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                })
+                .create();
+
+        //Show Dialog
+        dialog.show();
+    }
+
+    private void reviewDialog(){
+        View view = getLayoutInflater().inflate(R.layout.create_review_layout,null,false);
+        final EditText etxtReviewContent = view.findViewById(R.id.etxt_review_content);
+        final RatingBar ratingBar = view.findViewById(R.id.review_rating_bar);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Change the review for this person.")
+                .setView(view)
+                .setNegativeButton("Cancel",null)
+                .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        User.Review newReview = new User.Review(currentUser.getUid(),etxtReviewContent.getText().toString().trim(),(int)ratingBar.getRating(),Calendar.getInstance().getTimeInMillis());
+
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users").child(fromUser.getUid()).child("reviews");
+                        reference.child(currentUser.getUid()).setValue(newReview).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    FirebaseDatabase.getInstance().getReference(fromUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            fromUser = dataSnapshot.getValue(User.class);
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                })
+                .create();
+
+        //Show Dialog
+        dialog.show();
+    }
+
+    private void AddNewMessage(Conversation.Message message, User[] userLists, Uri[] userProfile){
         View itemView = LayoutInflater.from(this).inflate(R.layout.chat_layout_item,null,false);
 
         CircleImageView civFrom,civTo;
@@ -312,7 +526,7 @@ public class ChatActivity extends AppCompatActivity {
             viewLocationLayout = itemView.findViewById(R.id.chat_layout_view_location);
             txtvViewLocationLayout = itemView.findViewById(R.id.chat_view_location_textv);
 
-            Log.d(m.getSenderUid(),m.getMessageContent());
+//            Log.d(m.getSenderUid(),m.getMessageContent());
 
             if(userLists[0].getUid().equals(m.getSenderUid())){
                 //To user is the sender.
@@ -417,17 +631,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:
-                onBackPressed();
-                break;
-        }
-
-        return true;
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         linearLayoutChatLists.removeAllViews();
@@ -440,4 +643,23 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }
