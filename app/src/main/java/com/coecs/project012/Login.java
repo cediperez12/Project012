@@ -143,7 +143,7 @@ public class Login extends AppCompatActivity {
             this.loggingUser = loggingUser;
 
             pg = new ProgressDialog(context);
-            pg.setMessage("Loading...");
+            pg.setMessage("Logging in...");
             pg.setIndeterminate(true);
             pg.setCancelable(false);
             pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -166,7 +166,11 @@ public class Login extends AppCompatActivity {
                         if(task.isSuccessful()){
                             Login.this.startActivity(new Intent(getApplicationContext(),MainActivity.class));
                             Login.this.finish();
+                        }else{
+                            //Create Error
+                            alert.showErrorMessage("Notification","The email or password you entered is incorrect.");
                         }
+                        pg.dismiss();
                     }
                 });
 
@@ -182,10 +186,6 @@ public class Login extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-
-            if(pg.isShowing()){
-                pg.dismiss();
-            }
         }
     }
 }
