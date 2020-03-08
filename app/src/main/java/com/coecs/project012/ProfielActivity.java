@@ -169,51 +169,58 @@ public class ProfielActivity extends AppCompatActivity {
                     tvDisplayName.setText(user.getFirstName() + " " + user.getLastName());
                     tvDisplayEmail.setText(user.getEmail());
 
-                    //Populate Main Service
-                    txvMainService.setText(user.getWorkerProfile().getMainService());
-
-                    //Populate Other Service
-                    List<String> otherServices = user.getWorkerProfile().getOtherService();
-                    if(otherServices.isEmpty()){
-                        txtvOtherservices.setText("");
-                    }else{
-                        for(int i = 0; i<otherServices.size(); i++)
-                            cgOtherServices.addView(getChip(otherServices.get(i)));
-                    }
-
-                    //Populate Skills
-                    List<String> skills = user.getWorkerProfile().getSkills();
-                    if(skills.isEmpty()){
-                        txtvSkills.setText("");
-                    }else{
-                        for(int i = 0; i<skills.size(); i++)
-                            cgSkills.addView(getChip(skills.get(i)));
-                    }
-
-                    //Populate Experiences
-                    List<User.Experiences> experiencesList = user.getWorkerProfile().getExperiences();
-                    if(experiencesList.isEmpty()){
-                        txtvExperiences.setText("");
-                    }else{
-                        for(int i = 0; i<experiencesList.size(); i++){
-                            //Inflate View
-                            View view = LayoutInflater.from(ProfielActivity.this).inflate(android.R.layout.simple_list_item_1,null,false);
-                            TextView tv = (TextView)view;
-                            tv.setText(experiencesList.get(i).toString());
-                            listLayoutWorkExperiences.addView(view);
+                    if(user.getWorkerProfile() != null){
+                        //Populate Main Service
+                        if(user.getWorkerProfile().getMainService() == null){
+                            txvMainService.setText("");
+                        }else{
+                            txvMainService.setText(user.getWorkerProfile().getMainService());
                         }
-                    }
 
-                    //Populate Educational Attainment
-                    List<User.EducationalAttainment> educationalAttainments = user.getWorkerProfile().getEducations();
-                    if(educationalAttainments.isEmpty()){
-                        txtvEducation.setText("");
-                    }else{
-                        for(int i = 0; i<educationalAttainments.size(); i++){
-                            View view = LayoutInflater.from(ProfielActivity.this).inflate(android.R.layout.simple_list_item_1,null,false);
-                            TextView tv = (TextView)view;
-                            tv.setText(educationalAttainments.get(i).toString());
-                            listLayoutEducationalAttainment.addView(view);
+
+                        //Populate Other Service
+                        List<String> otherServices = user.getWorkerProfile().getOtherService();
+                        if(otherServices == null){
+                            txtvOtherservices.setText("");
+                        }else{
+                            for(int i = 0; i<otherServices.size(); i++)
+                                cgOtherServices.addView(getChip(otherServices.get(i)));
+                        }
+
+                        //Populate Skills
+                        List<String> skills = user.getWorkerProfile().getSkills();
+                        if(skills == null){
+                            txtvSkills.setText("");
+                        }else{
+                            for(int i = 0; i<skills.size(); i++)
+                                cgSkills.addView(getChip(skills.get(i)));
+                        }
+
+                        //Populate Experiences
+                        List<User.Experiences> experiencesList = user.getWorkerProfile().getExperiences();
+                        if(experiencesList == null){
+                            txtvExperiences.setText("");
+                        }else{
+                            for(int i = 0; i<experiencesList.size(); i++){
+                                //Inflate View
+                                View view = LayoutInflater.from(ProfielActivity.this).inflate(android.R.layout.simple_list_item_1,null,false);
+                                TextView tv = (TextView)view;
+                                tv.setText(experiencesList.get(i).toString());
+                                listLayoutWorkExperiences.addView(view);
+                            }
+                        }
+
+                        //Populate Educational Attainment
+                        List<User.EducationalAttainment> educationalAttainments = user.getWorkerProfile().getEducations();
+                        if(educationalAttainments == null){
+                            txtvEducation.setText("");
+                        }else{
+                            for(int i = 0; i<educationalAttainments.size(); i++){
+                                View view = LayoutInflater.from(ProfielActivity.this).inflate(android.R.layout.simple_list_item_1,null,false);
+                                TextView tv = (TextView)view;
+                                tv.setText(educationalAttainments.get(i).toString());
+                                listLayoutEducationalAttainment.addView(view);
+                            }
                         }
                     }
 

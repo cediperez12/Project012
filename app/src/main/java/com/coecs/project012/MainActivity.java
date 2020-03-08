@@ -400,6 +400,8 @@ public class MainActivity extends AppCompatActivity implements
         refreshMap();
     }
 
+    private LatLng myLocation;
+
     private void refreshMap(){
         try{
             //Refreshes all the workers
@@ -414,6 +416,8 @@ public class MainActivity extends AppCompatActivity implements
 
             LatLng location = new LatLng(MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
                     MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+
+            myLocation = location;
 
             MainActivity.this.mapboxMap.setMinZoomPreference(15);
             MainActivity.this.mapboxMap.setMaxZoomPreference(20);
@@ -443,19 +447,41 @@ public class MainActivity extends AppCompatActivity implements
 
                         //Identify Workers
                         if(user.isWorkerMode() && !user.getUid().equals(currentUser.getUid())){
-                            //Add to the list of worker
-                            workerLists.add(user);
 
-                            //Add Worker's Service on the search list
-                            workerSuggestion.add(user.getWorkerProfile().getMainService());
+                            if(myLocation != null){
+                                if(myLocation.getLatitude() + 0.0100 > user.getWorkerProfile().getUserLocation().getLat()
+                                && myLocation.getLatitude() - 0.0100 < user.getWorkerProfile().getUserLocation().getLat()
+                                && myLocation.getLongitude() + 0.0100 > user.getWorkerProfile().getUserLocation().getLng()
+                                && myLocation.getLongitude() - 0.0100 < user.getWorkerProfile().getUserLocation().getLng()){
+                                    //Add to the list of worker
+                                    workerLists.add(user);
 
-                            //Get the Users postion
-                            User.Location workerLocation = user.getWorkerProfile().getUserLocation();
+                                    //Add Worker's Service on the search list
+                                    workerSuggestion.add(user.getWorkerProfile().getMainService());
 
-                            //Create an icon for the map.
-                            mapboxMap.addMarker(new MarkerOptions()
-                            .setTitle(user.getUid())
-                            .setPosition(new LatLng(workerLocation.getLat(),workerLocation.getLng())));
+                                    //Get the Users postion
+                                    User.Location workerLocation = user.getWorkerProfile().getUserLocation();
+
+                                    //Create an icon for the map.
+                                    mapboxMap.addMarker(new MarkerOptions()
+                                            .setTitle(user.getUid())
+                                            .setPosition(new LatLng(workerLocation.getLat(),workerLocation.getLng())));
+                                }
+                            }else{
+                                //Add to the list of worker
+                                workerLists.add(user);
+
+                                //Add Worker's Service on the search list
+                                workerSuggestion.add(user.getWorkerProfile().getMainService());
+
+                                //Get the Users postion
+                                User.Location workerLocation = user.getWorkerProfile().getUserLocation();
+
+                                //Create an icon for the map.
+                                mapboxMap.addMarker(new MarkerOptions()
+                                        .setTitle(user.getUid())
+                                        .setPosition(new LatLng(workerLocation.getLat(),workerLocation.getLng())));
+                            }
                         }
 
                     }

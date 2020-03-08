@@ -238,6 +238,14 @@ public class ChatActivity extends AppCompatActivity implements LocationListener 
                 //Create new Review
                 createReview();
                 break;
+
+            case R.id.message_menu_profile:
+                Intent intent = new Intent(this,ProfielActivity.class);
+                intent.putExtra("USER_ID",fromUser.getUid());
+                startActivity(intent);
+                finish();
+                break;
+
             case android.R.id.home:
                 onBackPressed();
                 break;
@@ -570,6 +578,7 @@ public class ChatActivity extends AppCompatActivity implements LocationListener 
                             intent.putExtra("LON",locationMessage.getLocation().getLng());
                             intent.putExtra("USERNAME",fromUser.getFirstName());
                             startActivity(intent);
+                            finish();
                         }
                     });
                 }else{
@@ -649,6 +658,10 @@ public class ChatActivity extends AppCompatActivity implements LocationListener 
         linearLayoutChatLists.removeAllViews();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
     @Override
     public void onLocationChanged(Location location) {
