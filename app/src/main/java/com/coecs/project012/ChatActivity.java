@@ -14,6 +14,7 @@ import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -554,6 +555,7 @@ public class ChatActivity extends AppCompatActivity implements LocationListener 
                     txtvToStatus.setText(m.getMessageStatus() + " - " + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DATE) + "/" + calendar.get(Calendar.YEAR));
                 }
             }else{
+                final Conversation.Message locationMessage = m;
                 //From user is the sender
                 toLayout.setVisibility(View.GONE);
                 if(m.getMessageType().equals(Conversation.MESSAGE_TYPE_VIEW_LOCATION)){
@@ -563,6 +565,11 @@ public class ChatActivity extends AppCompatActivity implements LocationListener 
                         @Override
                         public void onClick(View v) {
                             //Intent to Location Viewer
+                            Intent intent = new Intent(getApplicationContext(),NavigateLocation.class);
+                            intent.putExtra("LAT",locationMessage.getLocation().getLat());
+                            intent.putExtra("LON",locationMessage.getLocation().getLng());
+                            intent.putExtra("USERNAME",fromUser.getFirstName());
+                            startActivity(intent);
                         }
                     });
                 }else{

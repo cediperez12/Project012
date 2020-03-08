@@ -3,15 +3,25 @@ package com.coecs.project012;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.directions.v5.models.DirectionsResponse;
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Marker;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -23,6 +33,9 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
 import java.util.List;
 
@@ -35,6 +48,10 @@ public class NavigateLocation extends AppCompatActivity implements OnMapReadyCal
 
     private PermissionsManager permissionsManager;
 
+    private LatLng location;
+
+    private String username;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,17 +59,19 @@ public class NavigateLocation extends AppCompatActivity implements OnMapReadyCal
         setContentView(R.layout.activity_navigate_location);
 
         mapView = findViewById(R.id.navigation_mapview);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(this);
         toolbar = findViewById(R.id.navigation_toolbar);
 
-        String username = getIntent().getExtras().getString("USERNAME");
+        username = getIntent().getExtras().getString("USERNAME");
 
         double sentLat = getIntent().getExtras().getDouble("LAT");
         double sentLon = getIntent().getExtras().getDouble("LON");
-        LatLng location = new LatLng(sentLat,sentLon);
+        location = new LatLng(sentLat,sentLon);
 
         //setup toolbar
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Navigating to " + username);
+        getSupportActionBar().setTitle("Directions to " + username);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
@@ -108,9 +127,12 @@ public class NavigateLocation extends AppCompatActivity implements OnMapReadyCal
         }
     }
 
+    private LatLng myLocation;
+
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
+
 
         mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
@@ -118,11 +140,32 @@ public class NavigateLocation extends AppCompatActivity implements OnMapReadyCal
                 try{
                     enableLocationComponent(style);
 
-                    LatLng location = new LatLng(NavigateLocation.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
+                    myLocation = new LatLng(NavigateLocation.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
                             NavigateLocation.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
 
                     NavigateLocation.this.mapboxMap.setMinZoomPreference(100);
                     NavigateLocation.this.mapboxMap.setMaxZoomPreference(15);
+
+                    Point selfLocation = Point.fromLngLat(myLocation.getLongitude(),myLocation.getLatitude());
+                    Point destination = Point.fromLngLat(location.getLongitude(),location.getLatitude());
+
+                    GeoJsonSource source = mapboxMap.getStyle().getSourceAs("destination-source-id");
+                    if(source != null){
+                        source.setGeoJson(Feature.fromGeometry(destination));
+                    }
+
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .zoom(20)
+                            .target(myLocation)
+                            .build();
+
+                    mapboxMap.setCameraPosition(cameraPosition);
+
+                    getRoute(selfLocation,destination);
+
+                    mapboxMap.addMarker(new MarkerOptions()
+                            .setPosition(NavigateLocation.this.location)
+                    .setTitle(username));
 
 
                 }catch(Exception ex){
@@ -131,6 +174,53 @@ public class NavigateLocation extends AppCompatActivity implements OnMapReadyCal
 
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+        return true;
+    }
+
+    private DirectionsRoute currentRoute;
+
+    private void getRoute(Point origin, Point destination){
+        NavigationRoute.builder(this)
+                .accessToken(Mapbox.getAccessToken())
+                .origin(origin)
+                .destination(destination)
+                .build()
+                .getRoute(new Callback<DirectionsResponse>() {
+                    @Override
+                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                        if(response.body() == null){
+                            //No found routes
+                            return;
+                        }else if(response.body().routes().size() < 1){
+                            return;
+                        }
+
+                        currentRoute = response.body().routes().get(0);
+
+                        NavigationMapRoute navigationRoute = new NavigationMapRoute(null,mapView,mapboxMap,R.style.NavigationMapRoute);
+                        navigationRoute.addRoute(currentRoute);
+                    }
+
+                    @Override
+                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                        Log.d("Error",t.getMessage());
+                    }
+                });
     }
 
     @Override

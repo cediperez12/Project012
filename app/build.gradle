@@ -51,4 +51,7 @@ dependencies {
 
     //RecyclerView Animations
     implementation 'jp.wasabeef:recyclerview-animators:3.0.0'
+
+    //Mapbox Navigation
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.42.5'
 }
