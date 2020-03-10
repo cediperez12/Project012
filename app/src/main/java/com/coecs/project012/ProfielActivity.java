@@ -6,7 +6,6 @@ import androidx.appcompat.widget.Toolbar;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import android.content.Intent;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -19,7 +18,6 @@ import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
 
-import com.google.android.gms.common.util.CollectionUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
@@ -38,14 +36,11 @@ import com.google.firebase.storage.StorageReference;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ProfielActivity extends AppCompatActivity {
     //Common Components
@@ -87,8 +82,8 @@ public class ProfielActivity extends AppCompatActivity {
     private void init(){
         toolbar = findViewById(R.id.profile_toolbar);
         civDisplayPhoto = findViewById(R.id.profile_display_photo);
-        tvDisplayName = findViewById(R.id.profile_display_name);
-        tvDisplayEmail = findViewById(R.id.profile_display_email);
+        tvDisplayName = findViewById(R.id.self_profile_main_text);
+        tvDisplayEmail = findViewById(R.id.self_profile_sub_text);
         btnSendMessage = findViewById(R.id.profile_btn_send_message);
         tabhost = findViewById(R.id.profile_tab_host);
 
