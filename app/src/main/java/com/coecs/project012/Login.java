@@ -115,11 +115,11 @@ public class Login extends AppCompatActivity {
 
     public void login(View view){
         try{
-            if(til_password.isErrorEnabled()){
-                throw new Exception(til_password.getError().toString());
+            if(til_password.getEditText().getText().toString().trim().isEmpty()){
+                throw new Exception("Please enter your password.");
             }
-            if(til_email.isErrorEnabled()){
-                throw new Exception(til_email.getError().toString());
+            if(til_email.getEditText().getText().toString().trim().isEmpty()){
+                throw new Exception("Please enter your Email.");
             }
 
             User user = new User(etxt_email.getText().toString(),etxt_password.getText().toString());

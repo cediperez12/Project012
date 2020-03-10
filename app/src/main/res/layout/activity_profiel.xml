@@ -193,15 +193,10 @@
                     android:orientation="vertical">
 
                     <LinearLayout
+                        android:id="@+id/profile_reviews_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/profile_txtv_rating"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Ratings: 0/1"/>
 
                         <ListView
                             android:id="@+id/profile_listv_ratings"
