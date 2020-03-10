@@ -349,13 +349,13 @@ public class MainActivity extends AppCompatActivity implements
                 try{
                     enableLocationComponent(style);
 
-                    LatLng location = new LatLng(MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
-                            MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+                    if(MainActivity.this.mapboxMap.getLocationComponent() != null){
+                        LatLng location = new LatLng(MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
+                                MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
 
-                    MainActivity.this.mapboxMap.setMinZoomPreference(100);
-                    MainActivity.this.mapboxMap.setMaxZoomPreference(15);
+                        MainActivity.this.mapboxMap.setMinZoomPreference(100);
+                        MainActivity.this.mapboxMap.setMaxZoomPreference(15);
 
-                    if(location != null){
                         CameraPosition position = new CameraPosition.Builder()
                                 .target(location) // Sets the new camera position
                                 .zoom(15) // Sets the zoom

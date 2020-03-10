@@ -32,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,7 +100,6 @@ public class ProfielActivity extends AppCompatActivity {
         txtvEducation = findViewById(R.id.profile_education_textv);
 
         //Setup Rating Components
-        profile_txtv_rating = findViewById(R.id.profile_txtv_rating);
         profile_listv_rating = findViewById(R.id.profile_listv_ratings);
 
         //Setup Tabhost
@@ -139,6 +139,9 @@ public class ProfielActivity extends AppCompatActivity {
                     //Fetch the user
                     User user = dataSnapshot.getValue(User.class);
                     userProfile = user;
+
+                    //Populate Reviews
+                    LoadReviews();
 
                     //Populate User Data
                     final File file;
@@ -300,6 +303,82 @@ public class ProfielActivity extends AppCompatActivity {
         }catch (Exception ex){
             alert.showErrorMessage("Notificaion",ex.getMessage());
         }
+    }
+
+    private LinearLayout profile_reviews_list;
+
+    private void LoadReviews(){
+        profile_reviews_list = findViewById(R.id.profile_reviews_list);
+
+        profile_reviews_list.removeAllViews();
+
+        DatabaseReference reviewsReference = FirebaseDatabase.getInstance().getReference("users").child(userProfile.getUid()).child("reviews");
+        reviewsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<User.Review> reviews = new ArrayList<>();
+
+                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                    reviews.add(ds.getValue(User.Review.class));
+                }
+
+                List<User.Review> reversed = new ArrayList<>();
+                for(int i = reviews.size()-1; i>=0; i--){
+                    reversed.add(reviews.get(i));
+                }
+
+                for(User.Review r : reversed){
+                    View view = getLayoutInflater().inflate(R.layout.review_layout,null,false);
+
+                    final CircleImageView civProfilePhoto = view.findViewById(R.id.rev_imgv_profile);
+                    final TextView txtvName = view.findViewById(R.id.rev_txtv_reviewer_name);
+                    TextView txtvRating = view.findViewById(R.id.rev_txtv_star_rating);
+                    TextView txtvContentMessage = view.findViewById(R.id.rev_txtv_review_content);
+
+                    txtvRating.setText(Integer.toString(r.getStars()));
+                    txtvContentMessage.setText(r.getReviewContent());
+
+                    DatabaseReference userReviewer = FirebaseDatabase.getInstance().getReference("users").child(r.getUid());
+                    userReviewer.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            User user = dataSnapshot.getValue(User.class);
+
+                            txtvName.setText(user.getFirstName() + " " + user.getLastName());
+
+                            final File file;
+                            try{
+                                file = File.createTempFile("image","png");
+
+                                StorageReference reference = FirebaseStorage.getInstance().getReference(user.getProfileImagePath());
+                                reference.getFile(file)
+                                        .addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
+                                                civProfilePhoto.setImageURI(Uri.fromFile(file));
+                                            }
+                                        });
+                            }catch (Exception ex){
+                                ex.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    profile_reviews_list.addView(view);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                alert.showErrorMessage("Notification",databaseError.getMessage());
+            }
+        });
     }
 
     private Chip getChip(String text){
