@@ -15,6 +15,7 @@
         android:ems="10"
         android:hint="Company/Institution"
         android:textSize="@dimen/text_small"
+        android:maxLength="24"
         android:inputType="textPersonName"/>
 
     <EditText
@@ -27,6 +28,7 @@
         android:ems="10"
         android:hint="Position"
         android:textSize="@dimen/text_small"
+        android:maxLength="24"
         android:inputType="textPersonName"/>
 
     <TextView

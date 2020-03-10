@@ -7,6 +7,12 @@
     <string name="mapbox_key">pk.eyJ1IjoiY2VkaWVwZXJlejEyIiwiYSI6ImNrM2lnN202eDA3eHAzZHM3a2kyOTRmbXAifQ.aycguHgjg4saApLr140G8w</string>
 
     <string name="sample_name">Lee Ji Eun</string>
+    <string name="sample_email">christian.daniel.perez12@gmail.com</string>
+    <string name="sample_service">Hardware Servicing</string>
+    <string name="sample_chat">Hi there Christian!</string>
+    <string name="sample_chat_status">Seen</string>
+    <string name="sample_chat_status_2">Sent</string>
+    <string name="sample_location">View Location</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

@@ -13,5 +13,6 @@
         android:ems="10"
         android:inputType="text"
         android:textSize="@dimen/text_small"
+        android:maxLength="48"
         android:layout_margin="16dp"/>
 </LinearLayout>

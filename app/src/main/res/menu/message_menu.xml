@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/message_menu_add_rev"
+        android:title="Add Review" />
+    <item
+        android:id="@+id/message_menu_send_loc"
+        android:title="Send current location" />
+    <item
+        android:id="@+id/message_menu_profile"
+        android:title="View Profile" />
+</menu>

@@ -1,6 +1,7 @@
 package com.coecs.project012;
 
 import java.util.List;
+import java.util.Map;
 
 public class User {
     private String email;
@@ -16,6 +17,10 @@ public class User {
     private boolean workerMode;
 
     private WorkerProfile workerProfile;
+
+    private Map<String, Conversation.Message> conversationIds;
+
+    private Map<String,Review> reviews;
 
     public User(String email, String password, String firstName, String lastName, String uid, String profileImagePath) {
         this.email = email;
@@ -38,7 +43,6 @@ public class User {
     public User(){
 
     }
-
 
     public String getUid() {
         return uid;
@@ -102,6 +106,71 @@ public class User {
 
     public void setWorkerProfile(WorkerProfile workerProfile) {
         this.workerProfile = workerProfile;
+    }
+
+    public Map<String, Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(Map<String, Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    public static class Review{
+        private String uid;
+        private String reviewContent;
+        private int stars;
+        private long submitDate;
+
+        public Review() {
+        }
+
+        public Review(String uid, String reviewContent, int stars, long submitDate) {
+            this.uid = uid;
+            this.reviewContent = reviewContent;
+            this.stars = stars;
+            this.submitDate = submitDate;
+        }
+
+        public String getUid() {
+            return uid;
+        }
+
+        public void setUid(String uid) {
+            this.uid = uid;
+        }
+
+        public String getReviewContent() {
+            return reviewContent;
+        }
+
+        public void setReviewContent(String reviewContent) {
+            this.reviewContent = reviewContent;
+        }
+
+        public int getStars() {
+            return stars;
+        }
+
+        public void setStars(int stars) {
+            this.stars = stars;
+        }
+
+        public long getSubmitDate() {
+            return submitDate;
+        }
+
+        public void setSubmitDate(long submitDate) {
+            this.submitDate = submitDate;
+        }
+    }
+
+    public Map<String, Conversation.Message> getConversationIds() {
+        return conversationIds;
+    }
+
+    public void setConversationIds(Map<String, Conversation.Message> conversationIds) {
+        this.conversationIds = conversationIds;
     }
 
     public static class WorkerProfile{

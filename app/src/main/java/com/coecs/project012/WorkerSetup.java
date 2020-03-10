@@ -17,6 +17,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,13 +28,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.chip.Chip;
@@ -47,15 +51,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class WorkerSetup extends AppCompatActivity {
+public class WorkerSetup extends AppCompatActivity implements LocationListener {
 
     private DatabaseReference userDr;
     private FirebaseAuth mAuth;
+    private DatabaseReference referenceForServices;
 
     private User currentUser;
 
@@ -63,10 +69,12 @@ public class WorkerSetup extends AppCompatActivity {
 
     private TextInputLayout tilServices;
     private ChipGroup cgSkills, cgOtherServices;
-    private ListView lvExperience, lvEducationAttainment;
+    private LinearLayout lvExperience, lvEducationAttainment;
     private CircleImageView civOtherServices, civEduc, civExperience, civSkills;
     private Switch swWorkMode;
     private CheckBox cbTermsAgreement;
+    private TextView worker_setup_save_location_notfier_textv;
+    private AutoCompleteTextView etxt_main_service;
 
     private ArrayList<String> listSkills, listOtherServices; //Holders.
     private ArrayAdapter<String> listEducation, listExperice;
@@ -98,6 +106,7 @@ public class WorkerSetup extends AppCompatActivity {
         getSupportActionBar().setTitle("Worker Setup");
 
         tilServices = findViewById(R.id.til_services);
+        etxt_main_service = findViewById(R.id.etxt_main_service);
         cgSkills = findViewById(R.id.chip_group_skills);
         cgOtherServices = findViewById(R.id.chip_group_other_services);
 
@@ -106,6 +115,7 @@ public class WorkerSetup extends AppCompatActivity {
 
         swWorkMode = findViewById(R.id.sw_worker_mode);
         cbTermsAgreement = findViewById(R.id.checkBox_terms_agreement);
+        worker_setup_save_location_notfier_textv = findViewById(R.id.worker_setup_save_location_notfier_textv);
 
         //Setup Progress Dialog
         progressDialog = new ProgressDialog(this);
@@ -117,6 +127,27 @@ public class WorkerSetup extends AppCompatActivity {
         //Setup Firebase
         mAuth = FirebaseAuth.getInstance();
         userDr = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getCurrentUser().getUid());
+        referenceForServices = FirebaseDatabase.getInstance().getReference("services");
+
+        //Setup Services
+        referenceForServices.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ArrayList<String> data = new ArrayList<>();
+
+                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                    data.add(ds.getValue(String.class));
+                }
+
+                etxt_main_service.setAdapter(new ArrayAdapter<String>(WorkerSetup.this,android.R.layout.simple_list_item_1,data));
+                etxt_main_service.clearFocus();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         //Show Progress Dialog
         progressDialog.show();
@@ -167,45 +198,17 @@ public class WorkerSetup extends AppCompatActivity {
         swWorkMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
                     //Fetch Location
                     try {//Find Restrictions
-                        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-                        checkGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                        checkInternet = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-                        if (!checkGps) {
-                            throw new Exception("Please turn on your GPS");
-                        }
-
-                        if(!checkInternet){
-                            throw new Exception("An internet connection is required to do this action.");
-                        }
-
-                        //Check Permissions
-                        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            if (ActivityCompat.shouldShowRequestPermissionRationale(WorkerSetup.this,
-                                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                                ActivityCompat.requestPermissions(WorkerSetup.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                            }else{
-                                ActivityCompat.requestPermissions(WorkerSetup.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                            }
-                            return;
-                        }
-
-                        //Fetched Location
-                        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-                        //Create dialog
-                        AlertDialog permissionToFetchLocation = new AlertDialog.Builder(WorkerSetup.this)
-                                .setTitle("Location")
-                                .setTitle("Are you sure you want to provide your location to other users?")
+                        //Create Dialog for confirmation
+                        AlertDialog confirmationDialog = new AlertDialog.Builder(WorkerSetup.this)
+                                .setTitle("Notification")
+                                .setMessage("This act will give save your location and will be seen by other user for them to contact you. Are you sure you want to save your location?")
                                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
                                         swWorkMode.setChecked(false);
                                     }
                                 })
@@ -213,25 +216,55 @@ public class WorkerSetup extends AppCompatActivity {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         try{
-                                            if(location == null){
-                                                swWorkMode.setChecked(false);
-                                                throw new Exception("We found an error while saving your location");
+                                            if(ActivityCompat.checkSelfPermission(WorkerSetup.this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                                                ActivityCompat.requestPermissions(WorkerSetup.this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},1);
                                             }else{
-                                                currentUser.getWorkerProfile().setUserLocation(new User.Location(location.getLatitude(),location.getLongitude()));
+                                                LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+
+                                                boolean network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                                                boolean gpsConnection = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+                                                if(network){
+                                                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,1,WorkerSetup.this);
+
+                                                    if(locationManager != null){
+                                                        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                                                        if(location != null){
+                                                            double lat = location.getLatitude(), lon = location.getLongitude();
+                                                            currentUser.getWorkerProfile().setUserLocation(new User.Location(lat,lon));
+                                                        }else{
+                                                            throw new Exception("Failed to fetch your location. Please try again later.");
+                                                        }
+                                                    }
+                                                }else if(gpsConnection){
+                                                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,1,WorkerSetup.this);
+
+                                                    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                                                    if(location != null){
+                                                        double lat = location.getLatitude(), lon = location.getLongitude();
+                                                        currentUser.getWorkerProfile().setUserLocation(new User.Location(lat,lon));
+                                                    }else{
+                                                        throw new Exception("Failed to fetch your location. Please try again later.");
+                                                    }
+                                                }else{
+                                                    throw new Exception("Please turn on your GPS/Location and Internet Connection");
+                                                }
                                             }
                                         }catch (Exception ex){
+                                            swWorkMode.setChecked(false);
                                             alert.showErrorMessage("Notification",ex.getMessage());
                                         }
-
                                     }
                                 })
                                 .create();
 
                         //Show dialog
-                        permissionToFetchLocation.show();
+                        confirmationDialog.show();
                     }catch (Exception ex){
-                        alert.showErrorMessage("Notification",ex.getMessage());
                         swWorkMode.setChecked(false);
+                        alert.showErrorMessage("Notification",ex.getMessage());
                     }
                 }
             }
@@ -471,7 +504,7 @@ public class WorkerSetup extends AppCompatActivity {
         final ArrayAdapter<Integer> yearsListFrom = new ArrayAdapter<Integer>(this,android.R.layout.simple_dropdown_item_1line);
 
         //Loop to create a list of years;
-        for(int i = to-100; i<to; i++){
+        for(int i = to-50; i<to; i++){
             yearsListFrom.add(i);
         }
 
@@ -548,6 +581,9 @@ public class WorkerSetup extends AppCompatActivity {
     }
 
     private void LoadEducList(){
+        //Remove all Views
+        lvEducationAttainment.removeAllViews();
+
         //Check if lists exists
         if(currentUser.getWorkerProfile().getEducations() == null){
             currentUser.getWorkerProfile().setEducations(new ArrayList<User.EducationalAttainment>());
@@ -566,18 +602,16 @@ public class WorkerSetup extends AppCompatActivity {
 
             //Add the data to the adapter
             adapter.add(data);
-        }
 
-        //Set the adapter to the list
-        lvEducationAttainment.setAdapter(adapter);
+            View view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1,null,false);
 
-        //Setup Onclick
-        lvEducationAttainment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Get current position
-                final int pos = position;
+            final int position = i;
 
+            TextView textView = (TextView)view;
+            textView.setText(data);
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                 //Create Delete Dialog
                 AlertDialog deleteDialog = new AlertDialog.Builder(WorkerSetup.this)
                         .setTitle("Notification")
@@ -587,7 +621,7 @@ public class WorkerSetup extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //Delete function
-                                currentUser.getWorkerProfile().getEducations().remove(pos);
+                                currentUser.getWorkerProfile().getEducations().remove(position);
 
                                 //Load List
                                 LoadEducList();
@@ -597,8 +631,11 @@ public class WorkerSetup extends AppCompatActivity {
 
                 //Show dialog
                 deleteDialog.show();
-            }
-        });
+                }
+            });
+
+            lvEducationAttainment.addView(textView);
+        }
     }
 
     public void addNewExperience(View v){
@@ -618,7 +655,7 @@ public class WorkerSetup extends AppCompatActivity {
         final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 
         //Create a loop for the years
-        for(int i = currentYear - 100; i<currentYear; i++){
+        for(int i = currentYear - 50; i<currentYear; i++){
             yearFromAdapter.add(i);
         }
 
@@ -703,6 +740,9 @@ public class WorkerSetup extends AppCompatActivity {
     }
 
     private void LoadExperienceList(){
+        //Remove All Views
+        lvExperience.removeAllViews();
+
         //Check if lists exists
         if(currentUser.getWorkerProfile().getExperiences() == null){
             currentUser.getWorkerProfile().setExperiences(new ArrayList<User.Experiences>());
@@ -717,12 +757,16 @@ public class WorkerSetup extends AppCompatActivity {
         //Fill the list using loop
         for(int i = 0; i<experiences.size(); i++){
             experiencesAdapter.add(experiences.get(i).toString());
-        }
 
-        lvExperience.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                //Create dialog for delete
+            final int position = i;
+
+            View view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1,null,false);
+            TextView textView = (TextView)view;
+            textView.setText(experiences.get(i).toString());
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    Create dialog for delete
                 AlertDialog dialogForDelete = new AlertDialog.Builder(WorkerSetup.this)
                         .setTitle("Notification")
                         .setMessage("Are you sure you want to delete " + experiencesAdapter.getItem(position) + "?")
@@ -737,18 +781,41 @@ public class WorkerSetup extends AppCompatActivity {
                         .create();
                 //Show Delete Dialog
                 dialogForDelete.show();
-            }
-        });
+                }
+            });
 
-        //Set adapter
-        lvExperience.setAdapter(experiencesAdapter);
+            lvExperience.addView(textView);
+        }
+
+//        lvExperience.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+//                //Create dialog for delete
+//                AlertDialog dialogForDelete = new AlertDialog.Builder(WorkerSetup.this)
+//                        .setTitle("Notification")
+//                        .setMessage("Are you sure you want to delete " + experiencesAdapter.getItem(position) + "?")
+//                        .setNegativeButton("No",null)
+//                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                currentUser.getWorkerProfile().getExperiences().remove(position);
+//                                LoadExperienceList();
+//                            }
+//                        })
+//                        .create();
+//                //Show Delete Dialog
+//                dialogForDelete.show();
+//            }
+//        });
+//
+//        //Set adapter
+//        lvExperience.setAdapter(experiencesAdapter);
     }
 
     public void saveWorkerSetup(View view){
         try{
             //Terms and agreement Check
             if(!cbTermsAgreement.isChecked()){
-                //Throw Exception
                 throw new Exception("You must read and agree to the terms and agreement we provided.");
             }else if(tilServices.getEditText().getText().toString().isEmpty()){
                 throw new Exception("Please fill in the Main service you want to provide your customers.");
@@ -764,7 +831,36 @@ public class WorkerSetup extends AppCompatActivity {
                                 currentUser.getWorkerProfile().setMainService(tilServices.getEditText().getText().toString().trim());
                                 currentUser.setWorkerMode(swWorkMode.isChecked());
                                 currentUser.getWorkerProfile().setTermsAndAgreement(cbTermsAgreement.isChecked());
-                                userDr.child("workerProfile").setValue(currentUser.getWorkerProfile());
+                                userDr.setValue(currentUser);
+
+                                if(swWorkMode.isChecked()){
+                                    worker_setup_save_location_notfier_textv.setText("New Location Saved!");
+                                    worker_setup_save_location_notfier_textv.setVisibility(View.VISIBLE);
+                                }
+
+                                referenceForServices = FirebaseDatabase.getInstance().getReference("services");
+                                referenceForServices.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        boolean isMentioned = false;
+                                        for(DataSnapshot ds : dataSnapshot.getChildren()){
+                                            String data = ds.getValue(String.class);
+
+                                            if(data.equals(currentUser.getWorkerProfile().getMainService())){
+                                                isMentioned = true;
+                                            }
+                                        }
+
+                                        if(!isMentioned){
+                                            referenceForServices.push().setValue(currentUser.getWorkerProfile().getMainService());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
                             }
                         })
                         .create();
@@ -773,7 +869,6 @@ public class WorkerSetup extends AppCompatActivity {
                 dialog.show();
             }
         }catch (Exception ex){
-
             alert.showErrorMessage("Notification",ex.getMessage());
         }
     }
@@ -808,4 +903,23 @@ public class WorkerSetup extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }

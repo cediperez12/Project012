@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/coversation_list_item_other_user_profile"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/sample_photo"/>
+
+    <TextView
+        android:id="@+id/conversation_list_item_txtv_other_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/coversation_list_item_other_user_profile"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
+        android:textSize="@dimen/text_med"
+        android:text="@string/sample_name"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/conversation_list_item_txtv_last_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/conversation_list_item_txtv_other_name"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="154dp"
+        android:layout_toStartOf="@+id/conversation_list_item_txtv_status"
+        android:layout_toEndOf="@id/coversation_list_item_other_user_profile"
+        android:text="@string/sample_chat"
+        android:textSize="@dimen/text_small" />
+
+    <TextView
+        android:id="@+id/conversation_list_item_txtv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="24dp"
+        android:layout_below="@id/conversation_list_item_txtv_other_name"
+        android:textSize="@dimen/text_small"
+        android:text="@string/sample_chat_status"/>
+
+</RelativeLayout>

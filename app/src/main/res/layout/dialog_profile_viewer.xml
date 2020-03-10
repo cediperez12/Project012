@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/dialog_profile_viewer_civ"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:src="@drawable/sample_photo"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        app:civ_border_width="1dp"/>
+
+    <TextView
+        android:id="@+id/dialog_profile_viewer_main_text"
+        android:layout_width="256dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:textStyle="bold"
+        android:textSize="@dimen/text_large"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:text="@string/sample_name" />
+
+    <TextView
+        android:id="@+id/dialog_profile_viewer_sub_text"
+        android:layout_width="256dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textStyle="bold"
+        android:textSize="@dimen/text_med"
+        android:textAlignment="center"
+        android:textColor="@android:color/darker_gray"
+        android:text="@string/sample_email" />
+
+    <TextView
+        android:id="@+id/dialog_profile_viewer_main_service"
+        android:layout_width="256dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:textStyle="bold|italic"
+        android:textSize="@dimen/text_large"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:text="@string/sample_service" />
+
+    <Button
+        android:id="@+id/dialog_profile_viewer_view_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="View Profile"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="8dp"/>
+
+
+</LinearLayout>
