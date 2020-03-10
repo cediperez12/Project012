@@ -8,5 +8,6 @@
     <color name="colorSmokeWhite">#dff6f0</color>
     <color name="colorDeepPink">#fb4081</color>
     <color name="colorDimGray">#5c5c5c</color>
-
+    <color name="colorLightGray">#d8d8d8</color>
+    <color name="colorMatteBlack">#343434</color>
 </resources>

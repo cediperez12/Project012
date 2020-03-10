@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
@@ -61,7 +62,7 @@ public class ChatActivity extends AppCompatActivity implements LocationListener 
     private LinearLayout linearLayoutChatLists;
     private ScrollView scChatList;
     private EditText etxtMessageContent;
-    private Button btnSendMessage;
+    private ImageButton btnSendMessage;
 
     private DatabaseReference conversationContentReference;
     private DatabaseReference conversationReference;

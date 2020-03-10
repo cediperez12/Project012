@@ -6,67 +6,83 @@
     android:background="@drawable/gradient_bg"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".Register">
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:paddingTop="20dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="40dp"
+            app:layout_constraintBottom_toTopOf="@+id/layout_whiteBG"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_register"
+            app:layout_constraintVertical_bias="0.0">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/civ_profile_image_register"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:onClick="clickChooseImage"
+                android:src="@drawable/place_holder_img_camera"
+                tools:layout_editor_absoluteX="157dp"
+                tools:layout_editor_absoluteY="80dp" />
+
+
+        </FrameLayout>
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/civ_profile_image_register"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_marginTop="24dp"
-            android:onClick="clickChooseImage"
-            android:src="@drawable/place_holder_img_camera"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar_register" />
+            app:layout_constraintBottom_toTopOf="@+id/layout_whiteBG"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            tools:layout_editor_absoluteX="2dp" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_whiteBG"
             android:layout_width="0dp"
-            android:paddingTop="16dp"
-            android:layout_margin="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
             android:layout_height="wrap_content"
-            android:paddingBottom="16dp"
+            android:layout_marginTop="180dp"
             android:background="@drawable/white_corners"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.551"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/civ_profile_image_register">
+            app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_first_name_register"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            <Button
+                android:id="@+id/btn_register_register"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                app:errorEnabled="false"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:onClick="clickRegister"
+                android:padding="16dp"
+                android:text="Register"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="First Name"
-                    android:inputType="textPersonName"
-                    android:maxLength="18"
-                    android:textSize="@dimen/text_small" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                app:layout_constraintTop_toBottomOf="@+id/til_confirm_password_register" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_last_name_register"
@@ -142,12 +158,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                app:passwordToggleEnabled="true"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/til_password_register">
+                app:layout_constraintTop_toBottomOf="@+id/til_password_register"
+                app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -158,26 +174,28 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/btn_register_register"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_first_name_register"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:backgroundTint="@color/colorPrimary"
-                android:onClick="clickRegister"
-                android:padding="16dp"
-                android:layout_marginBottom="10dp"
-                android:text="Register"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/text_small"
+                app:errorEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/til_confirm_password_register" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintTop_toTopOf="parent">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="First Name"
+                    android:inputType="textPersonName"
+                    android:maxLength="18"
+                    android:textSize="@dimen/text_small" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

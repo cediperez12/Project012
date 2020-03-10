@@ -23,8 +23,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="7dp"
         android:ems="10"
+        android:background="@drawable/chat_input"
+        android:padding="10dp"
         android:hint="Enter your Message"
         android:inputType="textPersonName"
         android:textSize="@dimen/text_small"
@@ -32,15 +34,18 @@
         app:layout_constraintEnd_toStartOf="@+id/btn_chat_send_message"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
+
+    <ImageButton
         android:id="@+id/btn_chat_send_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@color/colorWhite"
         android:onClick="clickSendMessage"
-        android:text="Send"
+        android:src="@drawable/ic_send_black_24dp"
+
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scChatList" />
 
     <ScrollView
         android:id="@+id/scChatList"

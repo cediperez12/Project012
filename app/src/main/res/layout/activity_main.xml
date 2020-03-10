@@ -25,9 +25,10 @@
                 android:id="@+id/etxt_main_search_services"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="8dp"
                 android:textSize="@dimen/text_small"
                 android:hint="Search for Services"
-                android:background="@android:color/transparent"
+                android:background="@drawable/textfield_bg_corners"
                 android:maxLength="24"
                 android:ems="10"
                 android:inputType="text"
@@ -55,12 +56,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="24dp"
-                android:src="@drawable/ic_refresh_black_24dp"
+                android:backgroundTint="@color/colorPrimary"
                 android:onClick="refreshButton"
+                android:src="@drawable/ic_refresh_black_24dp"
+                android:tint="#302A2A"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:rippleColor="@color/colorPrimary" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

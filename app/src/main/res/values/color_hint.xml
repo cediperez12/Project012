@@ -4,8 +4,6 @@
         <item name="colorControlNormal">#929B9E</item>
         <item name="colorControlActivated">#00b8d4</item>
         <item name="colorControlHighlight">@color/colorAccent</item>
+
     </style>
-
-
-
 </resources>

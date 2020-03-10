@@ -55,7 +55,7 @@
         android:padding="32dp"
         android:text="You don't have any messages yet"
         android:textAlignment="center"
-        android:textColor="@android:color/black"
+        android:textColor="@color/colorMatteBlack"
         android:textSize="@dimen/text_large"
         android:textStyle="bold"
         android:visibility="gone"
