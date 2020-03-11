@@ -16,6 +16,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
+            android:textColor="@color/colorMatteBlack"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_med"
             android:hint="Main Service"/>

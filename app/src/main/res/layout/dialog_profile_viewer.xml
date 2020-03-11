@@ -8,58 +8,70 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/dialog_profile_viewer_civ"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="10dp"
         android:src="@drawable/sample_photo"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        app:civ_border_width="1dp"/>
-
+        app:civ_border_color="@color/colorPrimary"
+        android:layout_marginTop="108dp"
+        app:civ_border_width="4dp"/>
+<FrameLayout
+    android:layout_width="match_parent"
+    android:background="@drawable/tf_shapes_corner"
+    android:layout_height="110dp">
     <TextView
         android:id="@+id/dialog_profile_viewer_main_text"
         android:layout_width="256dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="-25dp"
         android:textStyle="bold"
         android:textSize="@dimen/text_large"
         android:textAlignment="center"
-        android:textColor="@android:color/black"
+        android:textColor="@color/colorMatteBlack"
         android:text="@string/sample_name" />
 
     <TextView
         android:id="@+id/dialog_profile_viewer_sub_text"
-        android:layout_width="256dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textStyle="bold"
         android:textSize="@dimen/text_med"
         android:textAlignment="center"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/colorSmokeWhite"
+        android:layout_marginTop="5dp"
         android:text="@string/sample_email" />
 
+
+
+</FrameLayout>
     <TextView
         android:id="@+id/dialog_profile_viewer_main_service"
         android:layout_width="256dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="-26dp"
+        android:background="@drawable/white_corners"
         android:textStyle="bold|italic"
         android:textSize="@dimen/text_large"
         android:textAlignment="center"
-        android:textColor="@android:color/black"
+        android:textColor="@color/colorPrimary"
+        android:padding="15dp"
         android:text="@string/sample_service" />
 
     <Button
         android:id="@+id/dialog_profile_viewer_view_profile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
         android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorPrimary"
         android:text="View Profile"
         android:textAlignment="center"
         android:textAllCaps="false"
-        android:textColor="@android:color/black"
-        android:layout_marginTop="8dp"/>
+        android:textColor="@color/colorWhite" />
 
 
 </LinearLayout>

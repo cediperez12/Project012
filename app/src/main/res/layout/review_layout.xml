@@ -12,6 +12,7 @@
         app:cardCornerRadius="4dp">
 
         <RelativeLayout
+            android:background="@drawable/tf_shapes_corner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -32,7 +33,7 @@
                 android:layout_marginStart="8dp"
                 android:text="@string/sample_name"
                 android:textSize="@dimen/text_med"
-                android:textColor="@android:color/black"
+                android:textColor="@color/colorWhite"
                 />
 
             <TextView

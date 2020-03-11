@@ -16,6 +16,9 @@
         android:hint="Company/Institution"
         android:textSize="@dimen/text_small"
         android:maxLength="24"
+        android:background="@drawable/tf_shapes_corner"
+        android:padding="12dp"
+        android:textColor="@color/colorWhite"
         android:inputType="textPersonName"/>
 
     <EditText
@@ -29,6 +32,9 @@
         android:hint="Position"
         android:textSize="@dimen/text_small"
         android:maxLength="24"
+        android:background="@drawable/tf_shapes_corner"
+        android:padding="12dp"
+        android:textColor="@color/colorWhite"
         android:inputType="textPersonName"/>
 
     <TextView
@@ -36,11 +42,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:text="Years" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/tf_shapes_corner"
+        android:padding="15dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp">
 

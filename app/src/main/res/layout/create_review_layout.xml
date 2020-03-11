@@ -3,13 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/white_corners"
     android:padding="16dp">
 
     <EditText
         android:id="@+id/etxt_review_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:background="@drawable/tf_shapes_corner"
+        android:padding="12dp"
+        android:textColor="@color/colorWhite"
         android:hint="Enter your evaluation"
         android:inputType="textMultiLine"
         android:lines="2"
@@ -22,6 +25,7 @@
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorMatteBlack"
         android:text="Rate me!"
         android:layout_marginTop="8dp"
         android:textAlignment="center" />

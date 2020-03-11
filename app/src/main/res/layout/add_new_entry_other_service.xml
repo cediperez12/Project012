@@ -13,6 +13,10 @@
         android:ems="10"
         android:inputType="text"
         android:textSize="@dimen/text_small"
+        android:background="@drawable/tf_shapes_corner"
+        android:padding="12dp"
+        android:textColor="@color/colorWhite"
+        android:hint="Other Service"
         android:maxLength="48"
         android:layout_margin="16dp"/>
 </LinearLayout>

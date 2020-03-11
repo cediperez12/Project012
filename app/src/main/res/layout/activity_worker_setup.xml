@@ -45,9 +45,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
+                    android:layout_gravity="center"
+                    android:checked="true"
                     android:switchPadding="8dp"
                     android:text="@string/worker_mode"
-                    android:checked="true"
+                    android:textColor="@color/colorMatteBlack"
                     android:textSize="18sp" />
 
                 <TextView
@@ -74,6 +76,10 @@
                 <AutoCompleteTextView
                     android:id="@+id/etxt_main_service"
                     android:layout_width="match_parent"
+                    android:background="@drawable/tf_shapes_corner"
+                    android:padding="15dp"
+                    android:textColorHint="@color/colorWhite"
+                    android:textColor="@color/colorWhite"
                     android:layout_height="wrap_content"
                     android:hint="@string/main_service"
                     android:textSize="@dimen/text_small" />
@@ -273,7 +279,8 @@
                 android:layout_marginStart="36dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="36dp"
-                android:text="I agree to the terms and agreements that the application offers." />
+                android:text="I agree to the terms and agreements that the application offers."
+                android:textColor="@color/colorMatteBlack" />
 
 
         </LinearLayout>
@@ -282,14 +289,18 @@
 
     <Button
         android:id="@+id/btn_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
         style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="12dp"
+        android:background="@drawable/tf_shapes_corner"
+        android:backgroundTint="@color/colorPrimary"
+        android:onClick="saveWorkerSetup"
         android:text="SAVE"
         android:textAllCaps="false"
+        android:textSize="@dimen/text_med"
         android:textStyle="bold"
-        android:onClick="saveWorkerSetup"
+        app:iconTint="#C12727"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

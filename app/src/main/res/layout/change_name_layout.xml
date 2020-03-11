@@ -11,6 +11,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="First name"
+        android:background="@drawable/tf_shapes_corner"
+        android:padding="12dp"
         android:inputType="textPersonName"
         android:textSize="@dimen/text_small" />
 
@@ -19,7 +21,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:layout_marginTop="8dp"
+        android:background="@drawable/tf_shapes_corner"
+        android:padding="12dp"
+        android:layout_marginTop="12dp"
         android:hint="Last name"
         android:inputType="textPersonName"
         android:textSize="@dimen/text_small" />
