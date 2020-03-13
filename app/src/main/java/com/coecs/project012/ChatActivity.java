@@ -398,7 +398,7 @@ public class ChatActivity extends AppCompatActivity implements LocationListener 
         final RatingBar ratingBar = view.findViewById(R.id.review_rating_bar);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Change the review for this person.")
+                .setTitle("Create a review to this worker/person")
                 .setView(view)
                 .setNegativeButton("Cancel",null)
                 .setPositiveButton("Submit", new DialogInterface.OnClickListener() {

@@ -37,7 +37,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
                 android:id="@+id/worker_mode_checker_layout">
 
                 <Switch
@@ -48,6 +49,7 @@
                     android:layout_gravity="center"
                     android:checked="true"
                     android:switchPadding="8dp"
+
                     android:text="@string/worker_mode"
                     android:textColor="@color/colorMatteBlack"
                     android:textSize="18sp" />
@@ -69,6 +71,7 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="24dp"
+                android:background="@drawable/tf_shapes_corner"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/worker_mode_checker_layout">
@@ -76,11 +79,11 @@
                 <AutoCompleteTextView
                     android:id="@+id/etxt_main_service"
                     android:layout_width="match_parent"
-                    android:background="@drawable/tf_shapes_corner"
                     android:padding="15dp"
                     android:textColorHint="@color/colorWhite"
                     android:textColor="@color/colorWhite"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/tf_shapes_corner"
                     android:hint="@string/main_service"
                     android:textSize="@dimen/text_small" />
             </com.google.android.material.textfield.TextInputLayout>

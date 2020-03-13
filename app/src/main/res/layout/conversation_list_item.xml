@@ -2,11 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:background="@drawable/chat_from"
-    android:layout_marginLeft="5dp"
-    android:layout_marginRight="5dp"
-    android:layout_marginTop="5dp"
-    android:paddingBottom="7dp"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="8dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/coversation_list_item_other_user_profile"
@@ -16,7 +13,8 @@
         android:layout_alignParentStart="true"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:src="@drawable/sample_photo"/>
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/place_holder_img_avatar"/>
 
     <TextView
         android:id="@+id/conversation_list_item_txtv_other_name"
@@ -36,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/conversation_list_item_txtv_other_name"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="154dp"
+        android:layout_marginEnd="8dp"
         android:layout_toStartOf="@+id/conversation_list_item_txtv_status"
         android:layout_toEndOf="@id/coversation_list_item_other_user_profile"
         android:text="@string/sample_chat"

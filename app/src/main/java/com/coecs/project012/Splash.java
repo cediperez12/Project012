@@ -20,7 +20,7 @@ public class Splash extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         try{
-            Thread.sleep(5000);
+            Thread.sleep(8000);
 
             if(auth.getCurrentUser() == null){
                 startActivity(new Intent(getApplicationContext(), Login.class));
@@ -30,7 +30,7 @@ public class Splash extends AppCompatActivity {
 
             finish();
         }catch (Exception ex){
-            new Alert(this).showErrorMessage("Error",ex.getMessage());
+            new Alert(this).showErrorMessage("Notification",ex.getMessage());
         }
     }
 }

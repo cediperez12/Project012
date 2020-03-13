@@ -1,15 +1,15 @@
 <resources>
-    <string name="app_name">Project012</string>
+    <string name="app_name">Blue Niche</string>
 
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
 
     <string name="mapbox_key">pk.eyJ1IjoiY2VkaWVwZXJlejEyIiwiYSI6ImNrM2lnN202eDA3eHAzZHM3a2kyOTRmbXAifQ.aycguHgjg4saApLr140G8w</string>
 
-    <string name="sample_name">Lee Ji Eun</string>
-    <string name="sample_email">christian.daniel.perez12@gmail.com</string>
-    <string name="sample_service">Hardware Servicing</string>
-    <string name="sample_chat">Hi there Christian!</string>
+    <string name="sample_name">" "</string>
+    <string name="sample_email">" "</string>
+    <string name="sample_service">" "</string>
+    <string name="sample_chat">" "</string>
     <string name="sample_chat_status">Seen</string>
     <string name="sample_chat_status_2">Sent</string>
     <string name="sample_location">View Location</string>
@@ -19,4 +19,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="worker_mode">Worker Mode:</string>
     <string name="main_service">Main Service</string>
+    <string name="i_dont_have_an_account"><u>I don\'t have an account</u></string>
 </resources>
