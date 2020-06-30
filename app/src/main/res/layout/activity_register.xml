@@ -32,6 +32,7 @@
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:onClick="clickChooseImage"
+                android:layout_gravity="center"
                 android:src="@drawable/place_holder_img_camera"
                 tools:layout_editor_absoluteX="157dp"
                 tools:layout_editor_absoluteY="80dp" />

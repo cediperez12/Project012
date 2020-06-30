@@ -172,44 +172,47 @@ public class MainActivity extends AppCompatActivity implements
     private void searchPeople(){
         //Find all the users that has etxts data
         String data = etxtMainServiceSearch.getText().toString().trim();
-        final ArrayList<User> workersWithSearchedService = new ArrayList<>();
 
-        for(int i = 0; i<workerLists.size(); i++){
-            User user = workerLists.get(i);
-            if(user.getWorkerProfile().getMainService().equals(data)){
-                workersWithSearchedService.add(user);
+        if(!data.isEmpty()){
+            final ArrayList<User> workersWithSearchedService = new ArrayList<>();
+
+            for(int i = 0; i<workerLists.size(); i++){
+                User user = workerLists.get(i);
+                if(user.getWorkerProfile().getMainService().equals(data)){
+                    workersWithSearchedService.add(user);
+                }
             }
+
+            String[] array = new String[workersWithSearchedService.size()];
+            for(int i = 0; i<workersWithSearchedService.size(); i++){
+                array[i] = workersWithSearchedService.get(i).getFirstName() + " " + workersWithSearchedService.get(i).getLastName();
+            }
+
+            //Create Dialog
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle("Search Results")
+                    .setItems(array, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            User chosenWorker = workersWithSearchedService.get(which);
+                            viewPeople(chosenWorker);
+
+                            CameraPosition position = new CameraPosition.Builder()
+                                    .target(new LatLng(chosenWorker.getWorkerProfile().getUserLocation().getLat(),chosenWorker.getWorkerProfile().getUserLocation().getLng())) // Sets the new camera position
+                                    .zoom(15) // Sets the zoom
+                                    .bearing(100) // Rotate the camera
+                                    .build(); // Creates a CameraPosition from the builder
+
+                            MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
+
+                            etxtMainServiceSearch.setText("");
+                            dialog.dismiss();
+                        }
+                    })
+                    .create();
+            //Show Dialog
+            dialog.show();
         }
-
-        String[] array = new String[workersWithSearchedService.size()];
-        for(int i = 0; i<workersWithSearchedService.size(); i++){
-            array[i] = workersWithSearchedService.get(i).getFirstName() + " " + workersWithSearchedService.get(i).getLastName();
-        }
-
-        //Create Dialog
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Search Results")
-                .setItems(array, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        User chosenWorker = workersWithSearchedService.get(which);
-                        viewPeople(chosenWorker);
-
-                        CameraPosition position = new CameraPosition.Builder()
-                                .target(new LatLng(chosenWorker.getWorkerProfile().getUserLocation().getLat(),chosenWorker.getWorkerProfile().getUserLocation().getLng())) // Sets the new camera position
-                                .zoom(15) // Sets the zoom
-                                .bearing(100) // Rotate the camera
-                                .build(); // Creates a CameraPosition from the builder
-
-                        MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
-
-                        etxtMainServiceSearch.setText("");
-                        dialog.dismiss();
-                    }
-                })
-                .create();
-        //Show Dialog
-        dialog.show();
     }
 
     private void viewPeople(User user){
@@ -322,60 +325,63 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-        this.mapboxMap = mapboxMap;
+        try{
+            this.mapboxMap = mapboxMap;
 
-        mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(@NonNull Marker marker) {
-                //Find the users profile in the lists
-                User user = null;
+            mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(@NonNull Marker marker) {
+                    //Find the users profile in the lists
+                    User user = null;
 
-                for(int i = 0; i<workerLists.size(); i++){
-                    if(marker.getTitle().equals(workerLists.get(i).getUid())){
-                        user = workerLists.get(i);
-                        break;
-                    }
-                }
-
-                viewPeople(user);
-
-                return true;
-            }
-        });
-
-        mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                try{
-                    enableLocationComponent(style);
-
-                    if(MainActivity.this.mapboxMap.getLocationComponent() != null){
-                        LatLng location = new LatLng(MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
-                                MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
-
-                        MainActivity.this.mapboxMap.setMinZoomPreference(100);
-                        MainActivity.this.mapboxMap.setMaxZoomPreference(15);
-
-                        CameraPosition position = new CameraPosition.Builder()
-                                .target(location) // Sets the new camera position
-                                .zoom(15) // Sets the zoom
-                                .bearing(100) // Rotate the camera
-                                .build(); // Creates a CameraPosition from the builder
-
-                        MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
-
-                        refreshMap();
-                    }else{
-                        throw new Exception("Cannot find location, please turn on your Location Services or GPS");
+                    for(int i = 0; i<workerLists.size(); i++){
+                        if(marker.getTitle().equals(workerLists.get(i).getUid())){
+                            user = workerLists.get(i);
+                            break;
+                        }
                     }
 
+                    viewPeople(user);
 
-                }catch(Exception ex){
-                    alert.showErrorMessage("Notification",ex.getMessage());
+                    return true;
                 }
+            });
 
-            }
-        });
+            mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+                @Override
+                public void onStyleLoaded(@NonNull Style style) {
+                    try{
+                        enableLocationComponent(style);
+
+                        if(MainActivity.this.mapboxMap.getLocationComponent() != null){
+                            LatLng location = new LatLng(MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(),
+                                    MainActivity.this.mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+
+                            MainActivity.this.mapboxMap.setMinZoomPreference(100);
+                            MainActivity.this.mapboxMap.setMaxZoomPreference(15);
+
+                            CameraPosition position = new CameraPosition.Builder()
+                                    .target(location) // Sets the new camera position
+                                    .zoom(15) // Sets the zoom
+                                    .bearing(100) // Rotate the camera
+                                    .build(); // Creates a CameraPosition from the builder
+
+                            MainActivity.this.mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position),7000);
+
+                            refreshMap();
+                        }else{
+                            throw new Exception("Cannot find location, please turn on your Location Services or GPS");
+                        }
+
+
+                    }catch(Exception ex){
+                        alert.showErrorMessage("Notification",ex.getMessage() + " Please try refreshing the application.");
+                    }
+                }
+            });
+        }catch (Exception ex){
+            alert.showErrorMessage("Notification","An error occurred while trying to create the map. Please refresh.");
+        }
     }
 
     private void init(){

@@ -12,13 +12,11 @@
         android:layout_height="match_parent"
         tools:context=".Login">
 
-
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/title_imgv"
             android:layout_width="185dp"
             android:layout_height="158dp"
             android:layout_marginTop="32dp"
-            android:onClick="clickChooseImage"
             android:src="@drawable/logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -96,7 +94,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
-            android:text="I don't have an account"
+            android:text="@string/i_dont_have_an_account"
             android:textStyle="bold"
             android:textAlignment="center"
             android:textSize="@dimen/text_med"

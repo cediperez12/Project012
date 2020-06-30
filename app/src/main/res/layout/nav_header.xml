@@ -15,10 +15,10 @@
             android:id="@+id/navHeader_civ_profile"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            app:civ_border_color="#b4b4b4"
             android:layout_gravity="center"
-            app:civ_border_width="1dp"
-            android:src="@drawable/sample_photo"/>
+            android:src="@drawable/place_holder_img_avatar"
+            app:civ_border_color="#b4b4b4"
+            app:civ_border_width="1dp" />
 
     </FrameLayout>
 
@@ -32,24 +32,24 @@
         <TextView
             android:id="@+id/navHeader_txtv_profile_main_text"
             android:layout_width="wrap_content"
-            android:padding="5dp"
             android:layout_height="wrap_content"
-            android:text="Lee Ji Eun"
-            android:textSize="@dimen/text_large"
-            android:textColor="@color/colorPrimary"
             android:layout_gravity="center"
             android:layout_marginTop="8dp"
-            android:textStyle="bold"/>
+            android:padding="5dp"
+            android:text="@string/sample_name"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/text_large"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/navHeader_txtv_profile_sub_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="LeeJiEun@yahoo.com"
-            android:textSize="@dimen/text_small"
             android:layout_gravity="center"
+            android:text="@string/sample_email"
             android:textColor="@color/colorDimGray"
-            android:textStyle="bold"/>
+            android:textSize="@dimen/text_small"
+            android:textStyle="bold" />
     </LinearLayout>
 
 </LinearLayout>
